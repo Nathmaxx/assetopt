@@ -1,0 +1,52 @@
+{
+  "name": "@assetopt/cli",
+  "version": "1.0.1",
+  "description": "Command-line tool to optimize images, CSS, JS and SVG assets — open source, MIT.",
+  "license": "MIT",
+  "author": "Nath",
+  "type": "module",
+  "bin": {
+    "assetopt": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "keywords": [
+    "cli",
+    "asset-optimization",
+    "image-optimization",
+    "web-performance",
+    "webp",
+    "avif",
+    "minification",
+    "build-tool"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nathmaxx/assetopt.git",
+    "directory": "packages/cli"
+  },
+  "bugs": {
+    "url": "https://github.com/Nathmaxx/assetopt/issues"
+  },
+  "homepage": "https://github.com/Nathmaxx/assetopt#readme",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --clean",
+    "dev": "tsup src/index.ts --format esm --dts --watch"
+  },
+  "dependencies": {
+    "@assetopt/core": "^1.0.1",
+    "commander": "^13.0.0",
+    "picocolors": "^1.1.1"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.0"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "images": {
+    "outputFormat": "keep",
+    "quality": {
+      "jpeg": 85,
+      "png": 80,
+      "webp": 82,
+      "avif": 75
+    },
+    "stripMetadata": true
+  },
+  "preset": "web-perf",
+  "css": {
+    "minify": true
+  },
+  "js": {
+    "minify": true
+  },
+  "svg": {
+    "multipass": true,
+    "minifyIds": false
+  },
+  "output": {
+    "dir": "./z_optimized"
+  }
+}

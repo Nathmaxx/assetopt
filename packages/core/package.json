@@ -1,0 +1,61 @@
+{
+  "name": "@assetopt/core",
+  "version": "1.0.1",
+  "description": "Pure asset optimization functions for images (sharp), CSS (lightningcss), JS (esbuild), and SVG (svgo). Core engine behind the assetopt CLI.",
+  "license": "MIT",
+  "author": "Nath",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "keywords": [
+    "asset-optimization",
+    "image-optimization",
+    "css-minification",
+    "js-minification",
+    "svg-optimization",
+    "sharp",
+    "lightningcss",
+    "esbuild",
+    "svgo",
+    "web-performance"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nathmaxx/assetopt.git",
+    "directory": "packages/core"
+  },
+  "bugs": {
+    "url": "https://github.com/Nathmaxx/assetopt/issues"
+  },
+  "homepage": "https://github.com/Nathmaxx/assetopt#readme",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --clean",
+    "dev": "tsup src/index.ts --format esm --dts --watch"
+  },
+  "dependencies": {
+    "esbuild": "^0.25.0",
+    "lightningcss": "^1.28.0",
+    "sharp": "^0.33.0",
+    "svgo": "^3.3.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.0"
+  }
+}
