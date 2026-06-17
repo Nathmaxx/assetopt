@@ -49,7 +49,7 @@
     "dev": "tsup src/index.ts --format esm --dts --watch"
   },
   "dependencies": {
-    "esbuild": "^0.25.0",
+    "esbuild": "^0.28.1",
     "lightningcss": "^1.28.0",
     "sharp": "^0.33.0",
     "svgo": "^3.3.0",
