@@ -6,7 +6,7 @@
   "author": "Nath",
   "type": "module",
   "bin": {
-    "assetopt": "./dist/index.js"
+    "assetopt": "dist/index.js"
   },
   "files": [
     "dist",
