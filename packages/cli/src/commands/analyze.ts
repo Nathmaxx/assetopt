@@ -6,6 +6,7 @@ import { handleCliError } from '../utils/error.js';
 import { enforceMinSavings } from '../utils/threshold.js';
 
 interface AnalyzeCommandOptions {
+  json?: boolean;
   minSavings?: string;
   cache?: boolean;
   output?: string;
@@ -19,6 +20,7 @@ export function registerAnalyze(program: Command): void {
       '-o, --output <dir>',
       'output directory used for cache lookup (overrides output.dir from config)',
     )
+    .option('--json', 'output report as JSON instead of terminal format')
     .option('--min-savings <percent>', 'fail (exit 1) if total savings are below this percent')
     .option('--no-cache', 'bypass the incremental cache (re-analyze every asset from scratch)')
     .action(async (dir: string = '.', options: AnalyzeCommandOptions) => {
@@ -29,19 +31,26 @@ export function registerAnalyze(program: Command): void {
         const effectiveConfig = options.output
           ? { ...config, output: { ...config.output, dir: resolve(process.cwd(), options.output) } }
           : config;
-        printConfigSource(source);
-        console.log(`Analyzing ${cwd}...`);
+
+        if (!options.json) {
+          printConfigSource(source);
+          console.log(`Analyzing ${cwd}...`);
+        }
 
         const start = Date.now();
         const assets = await runPipeline(cwd, effectiveConfig, {
           dryRun: true,
           useCache: options.cache !== false,
-          onProgress: printProgress,
+          onProgress: options.json ? undefined : printProgress,
         });
         clearProgress();
         const report = buildReport(assets, Date.now() - start);
 
-        printReport(report, 'analyze');
+        if (options.json) {
+          console.log(JSON.stringify(report, null, 2));
+        } else {
+          printReport(report, 'analyze');
+        }
 
         if (options.minSavings !== undefined) {
           enforceMinSavings(report, options.minSavings);

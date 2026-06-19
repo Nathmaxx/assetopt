@@ -79,7 +79,7 @@ Analyze assets and report potential savings without modifying any files (dry-run
 ### Signature
 
 ```
-assetopt analyze [dir] [-o, --output <dir>] [--min-savings <percent>] [--no-cache]
+assetopt analyze [dir] [-o, --output <dir>] [--json] [--min-savings <percent>] [--no-cache]
 ```
 
 ### Arguments
@@ -90,11 +90,12 @@ assetopt analyze [dir] [-o, --output <dir>] [--min-savings <percent>] [--no-cach
 
 ### Options
 
-| Option                    | Default                     | Effect                                                                                                         |
-| ------------------------- | --------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| `-o, --output <dir>`      | from config (`./optimized`) | Override `output.dir` from config — used here for cache lookup                                                 |
-| `--min-savings <percent>` | _off_                       | Fail with exit code 1 if total savings are below this percent. Value must be a finite number between 0 and 100 |
-| `--no-cache`              | _off_                       | Bypass the incremental cache (read every asset from scratch)                                                   |
+| Option                    | Default                     | Effect                                                                                                              |
+| ------------------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `-o, --output <dir>`      | from config (`./optimized`) | Override `output.dir` from config — used here for cache lookup                                                      |
+| `--json`                  | _off_                       | Output the report as JSON on stdout. Suppresses the colored summary, the progress bar, and the config-source banner |
+| `--min-savings <percent>` | _off_                       | Fail with exit code 1 if total savings are below this percent. Value must be a finite number between 0 and 100      |
+| `--no-cache`              | _off_                       | Bypass the incremental cache (read every asset from scratch)                                                        |
 
 ### Exit codes
 
@@ -120,12 +121,16 @@ assetopt analyze ./public --no-cache
 
 # Use a one-off output dir for cache lookup
 assetopt analyze ./public -o /tmp/assetopt-cache
+
+# Machine-readable report for tooling / CI
+assetopt analyze ./public --json > savings.json
 ```
 
 ### Notes
 
 - `analyze` **reads** the cache to skip redundant work, but **never writes** the manifest. Only `optimize` maintains the cache.
 - The output report has the same structure as `optimize`'s. The verb in the summary is `Would save` instead of `Saved`.
+- With `--json`, only valid JSON is written to stdout (the summary, progress bar, and config-source banner are suppressed) — safe for piping.
 - If no supported assets are found in `dir`, the command prints `No supported assets found.` and exits 0.
 
 ---

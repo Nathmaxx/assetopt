@@ -269,7 +269,8 @@ Config: defaults (no .assetoptrc found)
 assetopt optimize ./public --json > report.json
 ```
 
-Available on `optimize` (not on `analyze` or `audit` for now).
+Available on `optimize` and `analyze` (not on `audit` for now). On `analyze` the report has the
+same `OptimizeResult` shape — it just reflects a dry-run (potential savings), nothing is written.
 
 **JSON structure** (type `OptimizeResult`):
 

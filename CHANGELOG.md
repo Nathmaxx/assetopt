@@ -27,7 +27,7 @@ Initial public release of `@assetopt/cli` and `@assetopt/core`.
 - `--min-savings <%>` — CI quality gate on `optimize` and `analyze` (exit 1 on threshold miss).
 - `-o, --output <dir>` — one-run override of `output.dir` on `optimize` and `analyze`.
 - `--no-cache` — bypass the incremental cache.
-- `--json` — JSON report on stdout for `optimize` (downstream tooling).
+- `--json` — JSON report on stdout for `optimize` and `analyze` (downstream tooling).
 - `--force` — overwrite existing `.assetoptrc` on `init`.
 - Zero-friction config — `.assetoptrc` walk-up from `process.cwd()`, validated with zod.
 - Colored terminal report with per-file breakdown, progress bar, and config-source banner.

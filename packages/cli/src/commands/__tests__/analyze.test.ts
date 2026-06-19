@@ -75,6 +75,18 @@ describe('analyze command', () => {
     expect(config.output.dir).toBe(resolve(process.cwd(), 'cache/dir'));
   });
 
+  it('prints the report as JSON with --json (and nothing else)', async () => {
+    const report = makeReport({ totalSavedPercent: 42 });
+    buildReportMock.mockReturnValue(report);
+
+    await runAnalyze(['--json']);
+
+    expect(console.log).toHaveBeenCalledOnce();
+    expect(console.log).toHaveBeenCalledWith(JSON.stringify(report, null, 2));
+    // Progress reporting must be disabled in JSON mode.
+    expect(runPipelineMock.mock.calls[0][2].onProgress).toBeUndefined();
+  });
+
   it('exits 1 when savings fall below --min-savings', async () => {
     buildReportMock.mockReturnValue(makeReport({ totalSavedPercent: 2 }));
     const exit = vi.spyOn(process, 'exit').mockImplementation((() => undefined) as never);

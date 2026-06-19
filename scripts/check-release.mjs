@@ -11,6 +11,10 @@
  *     version that exists on the registry.
  *  2. The two workspaces stay version-aligned (same `version`) — the v1
  *     release ships both packages in lockstep.
+ *  3. (Optional) When `EXPECTED_VERSION` is set — e.g. the git tag in the
+ *     release workflow — both packages must be at exactly that version, so a
+ *     `v*` tag can never publish a mismatched package.json version. A leading
+ *     `v` is tolerated (`v1.2.3` and `1.2.3` are equivalent).
  *
  * Exits non-zero with an explanation on any violation so the publish aborts
  * before anything reaches npm.
@@ -45,6 +49,18 @@ if (core.version !== cli.version) {
   );
 }
 
+const expected = process.env.EXPECTED_VERSION?.trim().replace(/^v/, '');
+if (expected) {
+  for (const pkg of [core, cli]) {
+    if (pkg.version !== expected) {
+      errors.push(
+        `Tag/version mismatch: expected ${expected} (from EXPECTED_VERSION) but ` +
+          `${pkg.name} is at ${pkg.version}. Tag the commit that bumps package.json.`,
+      );
+    }
+  }
+}
+
 if (errors.length > 0) {
   console.error('✗ Release check failed:');
   for (const e of errors) console.error(`  - ${e}`);
@@ -53,5 +69,6 @@ if (errors.length > 0) {
 
 console.log(
   `✓ Release check OK — core ${core.version} satisfies cli's ` +
-    `@assetopt/core@"${coreDep}"; publish order: core → cli.`,
+    `@assetopt/core@"${coreDep}"${expected ? ` (matches tag ${expected})` : ''}; ` +
+    `publish order: core → cli.`,
 );

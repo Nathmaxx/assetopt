@@ -88,6 +88,7 @@ export { dispatch, runPipeline, buildReport };
 
 // Config
 export { loadConfig, mergeConfig, resolveConfig, DEFAULTS, PRESETS };
+export type { LoadedConfig };
 
 // Utilities
 export { scanDirectory, getAssetType, getFileSize };
@@ -97,6 +98,7 @@ export type {
   AssetType,
   AssetResult,
   OptimizeResult,
+  ImageQualityOptions,
   ImageOptimizeOptions,
   ImageBufferResult,
   ImageSourceFormat,

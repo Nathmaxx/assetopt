@@ -22,7 +22,7 @@
     "assetopt": "node packages/cli/dist/index.js",
     "release:check": "node scripts/check-release.mjs",
     "release:dry-run": "npm run release:check && npm publish --dry-run --workspace @assetopt/core && npm publish --dry-run --workspace @assetopt/cli",
-    "release": "npm run lint && npm run test:run && npm run build && npm run release:check && npm publish --workspace @assetopt/core && npm publish --workspace @assetopt/cli"
+    "release": "npm run lint && npm run format:check && npm run test:run && npm run build && npm run release:check && npm publish --workspace @assetopt/core && npm publish --workspace @assetopt/cli"
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",
