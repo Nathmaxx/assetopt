@@ -1,6 +1,6 @@
 {
   "name": "@assetopt/cli",
-  "version": "1.0.1",
+  "version": "1.0.0",
   "description": "Command-line tool to optimize images, CSS, JS and SVG assets — open source, MIT.",
   "license": "MIT",
   "author": "Nath",
@@ -39,10 +39,11 @@
   },
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts --clean",
-    "dev": "tsup src/index.ts --format esm --dts --watch"
+    "dev": "tsup src/index.ts --format esm --dts --watch",
+    "prepack": "npm run build"
   },
   "dependencies": {
-    "@assetopt/core": "^1.0.1",
+    "@assetopt/core": "^1.0.0",
     "commander": "^13.0.0",
     "picocolors": "^1.1.1"
   },

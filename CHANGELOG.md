@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
-## [1.0.1] — 2026-05-11
+## [1.0.0] — 2026-06-19
 
 Initial public release of `@assetopt/cli` and `@assetopt/core`.
 
@@ -32,4 +32,4 @@ Initial public release of `@assetopt/cli` and `@assetopt/core`.
 - Zero-friction config — `.assetoptrc` walk-up from `process.cwd()`, validated with zod.
 - Colored terminal report with per-file breakdown, progress bar, and config-source banner.
 
-[1.0.1]: https://github.com/Nathmaxx/assetopt/releases/tag/v1.0.1
+[1.0.0]: https://github.com/Nathmaxx/assetopt/releases/tag/v1.0.0

@@ -10,7 +10,7 @@ const program = new Command();
 program
   .name('assetopt')
   .description('Static asset optimization tool')
-  .version('1.0.1');
+  .version('1.0.0');
 
 registerInit(program);
 registerAnalyze(program);
