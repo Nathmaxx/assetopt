@@ -19,10 +19,10 @@ import { readFile } from 'node:fs/promises';
 const buf = await readFile('photo.jpg');
 const result = await optimizeImage(buf, { quality: { jpeg: 80 } });
 
-console.log(result.format);       // 'jpeg'
+console.log(result.format); // 'jpeg'
 console.log(result.originalSize); // 824133
-console.log(result.outputSize);   // 245912
-console.log(result.buffer);       // Buffer with optimized bytes
+console.log(result.outputSize); // 245912
+console.log(result.buffer); // Buffer with optimized bytes
 ```
 
 Every optimizer is a pure function: a buffer in, an optimized buffer out. No hidden I/O, no global state.
@@ -31,12 +31,12 @@ Every optimizer is a pure function: a buffer in, an optimized buffer out. No hid
 
 ### Optimizers
 
-| Function | Underlying lib | Returns |
-|----------|----------------|---------|
-| `optimizeImage(buffer, options?)` | `sharp` | `Promise<ImageBufferResult>` |
-| `optimizeCss(buffer, options?)` | `lightningcss` | `CssBufferResult` |
-| `optimizeJs(buffer, options?)` | `esbuild` | `Promise<JsBufferResult>` |
-| `optimizeSvg(buffer, options?)` | `svgo` | `SvgBufferResult` |
+| Function                          | Underlying lib | Returns                      |
+| --------------------------------- | -------------- | ---------------------------- |
+| `optimizeImage(buffer, options?)` | `sharp`        | `Promise<ImageBufferResult>` |
+| `optimizeCss(buffer, options?)`   | `lightningcss` | `CssBufferResult`            |
+| `optimizeJs(buffer, options?)`    | `esbuild`      | `Promise<JsBufferResult>`    |
+| `optimizeSvg(buffer, options?)`   | `svgo`         | `SvgBufferResult`            |
 
 All option types are optional with sensible defaults:
 
@@ -52,7 +52,7 @@ For folder-level orchestration:
 ```ts
 import { runPipeline, buildReport, loadConfig } from '@assetopt/core';
 
-const { config } = await loadConfig();           // walk-up .assetoptrc
+const { config } = await loadConfig(); // walk-up .assetoptrc
 const assets = await runPipeline('./public', config);
 const report = buildReport(assets, /* durationMs */ 0);
 ```
@@ -94,14 +94,25 @@ export { scanDirectory, getAssetType, getFileSize };
 
 // Types
 export type {
-  AssetType, AssetResult, OptimizeResult,
-  ImageOptimizeOptions, ImageBufferResult, ImageSourceFormat, ImageMatrixTarget,
-  FormatMatrixValue, FormatMatrixResolver, FormatRoutingContext,
+  AssetType,
+  AssetResult,
+  OptimizeResult,
+  ImageOptimizeOptions,
+  ImageBufferResult,
+  ImageSourceFormat,
+  ImageMatrixTarget,
+  FormatMatrixValue,
+  FormatMatrixResolver,
+  FormatRoutingContext,
   PresetName,
-  CssOptimizeOptions, CssBufferResult,
-  JsOptimizeOptions, JsBufferResult,
-  SvgOptimizeOptions, SvgBufferResult,
-  DispatchResult, AssetoptConfig,
+  CssOptimizeOptions,
+  CssBufferResult,
+  JsOptimizeOptions,
+  JsBufferResult,
+  SvgOptimizeOptions,
+  SvgBufferResult,
+  DispatchResult,
+  AssetoptConfig,
 };
 ```
 

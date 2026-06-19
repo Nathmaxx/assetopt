@@ -101,10 +101,10 @@ describe('runPipeline', () => {
 
     it('renames image extension when format changes', async () => {
       const outputDir2 = await mkdtemp(path.join(tmpdir(), 'assetopt-webp-'));
-      await runPipeline(
-        tmpInput,
-        { images: { outputFormat: 'webp' }, output: { dir: outputDir2 } },
-      );
+      await runPipeline(tmpInput, {
+        images: { outputFormat: 'webp' },
+        output: { dir: outputDir2 },
+      });
       expect(existsSync(path.join(outputDir2, 'photo.webp'))).toBe(true);
       await rm(outputDir2, { recursive: true, force: true });
     });
@@ -122,7 +122,12 @@ describe('runPipeline', () => {
         .jpeg({ quality: 100 })
         .toBuffer();
       const pngBuffer = await sharp({
-        create: { width: 50, height: 50, channels: 4, background: { r: 0, g: 200, b: 100, alpha: 1 } },
+        create: {
+          width: 50,
+          height: 50,
+          channels: 4,
+          background: { r: 0, g: 200, b: 100, alpha: 1 },
+        },
       })
         .png()
         .toBuffer();
@@ -168,11 +173,7 @@ describe('runPipeline', () => {
     });
 
     it('treats empty skip array as no-op', async () => {
-      const results = await runPipeline(
-        skipInput,
-        { images: { skip: [] } },
-        { dryRun: true },
-      );
+      const results = await runPipeline(skipInput, { images: { skip: [] } }, { dryRun: true });
       expect(results).toHaveLength(3);
     });
 
@@ -280,11 +281,7 @@ describe('runPipeline', () => {
       await writeFile(path.join(localInput, 'a.css'), '.a { color: red; }');
       await runPipeline(localInput, { output: { dir: out } }, { useCache: false });
       expect(existsSync(path.join(out, '.assetopt-cache.json'))).toBe(false);
-      const second = await runPipeline(
-        localInput,
-        { output: { dir: out } },
-        { useCache: false },
-      );
+      const second = await runPipeline(localInput, { output: { dir: out } }, { useCache: false });
       expect(second.every((r) => r.cached === false)).toBe(true);
       await rm(out, { recursive: true, force: true });
       await rm(localInput, { recursive: true, force: true });

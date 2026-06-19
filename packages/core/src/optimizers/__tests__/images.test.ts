@@ -17,7 +17,12 @@ beforeAll(async () => {
     .toBuffer();
 
   pngBuffer = await sharp({
-    create: { width: 200, height: 200, channels: 4, background: { r: 50, g: 200, b: 100, alpha: 1 } },
+    create: {
+      width: 200,
+      height: 200,
+      channels: 4,
+      background: { r: 50, g: 200, b: 100, alpha: 1 },
+    },
   })
     .png()
     .toBuffer();
@@ -29,7 +34,12 @@ beforeAll(async () => {
     .toBuffer();
 
   pngTransparentBuffer = await sharp({
-    create: { width: 200, height: 200, channels: 4, background: { r: 50, g: 200, b: 100, alpha: 0.5 } },
+    create: {
+      width: 200,
+      height: 200,
+      channels: 4,
+      background: { r: 50, g: 200, b: 100, alpha: 0.5 },
+    },
   })
     .png()
     .toBuffer();

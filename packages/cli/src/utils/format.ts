@@ -28,7 +28,8 @@ function formatAssetRow(asset: AssetResult): string {
   const name = basename(asset.inputPath).padEnd(30);
   const inputStr = formatBytes(asset.inputSize).padStart(10);
   const outputStr = formatBytes(asset.outputSize).padStart(10);
-  const savedStr = `${asset.savedPercent > 0 ? '-' : '+'}${Math.abs(asset.savedPercent).toFixed(1)}%`.padStart(8);
+  const savedStr =
+    `${asset.savedPercent > 0 ? '-' : '+'}${Math.abs(asset.savedPercent).toFixed(1)}%`.padStart(8);
 
   const colorOutput =
     asset.outputSize < asset.inputSize
@@ -95,8 +96,7 @@ export function printReport(report: OptimizeResult, mode: 'analyze' | 'optimize'
     console.log(formatAssetRow(asset));
   }
   console.log('');
-  const cachedStr =
-    report.cachedCount > 0 ? ` · ${pc.dim(`${report.cachedCount} cached`)}` : '';
+  const cachedStr = report.cachedCount > 0 ? ` · ${pc.dim(`${report.cachedCount} cached`)}` : '';
 
   console.log(
     `  ${pc.bold(count)} · ` +

@@ -5,10 +5,7 @@ export const CSS_DEFAULTS = {
   minify: true,
 } satisfies CssOptimizeOptions;
 
-export function optimizeCss(
-  input: Buffer,
-  options: CssOptimizeOptions = {},
-): CssBufferResult {
+export function optimizeCss(input: Buffer, options: CssOptimizeOptions = {}): CssBufferResult {
   const minify = options.minify ?? CSS_DEFAULTS.minify;
 
   const { code } = transform({

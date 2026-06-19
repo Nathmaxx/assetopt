@@ -60,9 +60,7 @@ export async function loadConfig(cwd = process.cwd()): Promise<LoadedConfig> {
     const parsed = configSchema.parse(JSON.parse(raw));
     return { config: resolveConfig(parsed), source: filePath };
   } catch (err) {
-    throw new Error(
-      `Invalid ${filePath}: ${err instanceof Error ? err.message : String(err)}`,
-    );
+    throw new Error(`Invalid ${filePath}: ${err instanceof Error ? err.message : String(err)}`);
   }
 }
 

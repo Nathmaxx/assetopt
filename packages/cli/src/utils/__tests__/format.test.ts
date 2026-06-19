@@ -161,7 +161,9 @@ describe('printReport', () => {
   it('pluralizes the file count', () => {
     const out = captureLog(() =>
       printReport(
-        makeReport({ assets: [makeAsset(), makeAsset({ inputPath: '/a/b.css', assetType: 'css' })] }),
+        makeReport({
+          assets: [makeAsset(), makeAsset({ inputPath: '/a/b.css', assetType: 'css' })],
+        }),
         'optimize',
       ),
     );

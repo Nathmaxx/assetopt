@@ -25,6 +25,7 @@ This is the workflow where the `web-perf` preset shines.
 ```
 
 Key choices:
+
 - `preset: "web-perf"` enables JPEG → WebP, PNG → WebP/AVIF (smart routed based on transparency).
 - `minifyIds: true` for SVGs because logo files from designers usually have no external references — safe to shrink IDs aggressively.
 - Output goes to `./prepped/`, separate from `./optimized/`, to avoid colliding with other workflows in the same project.

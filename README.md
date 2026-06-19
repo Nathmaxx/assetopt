@@ -35,11 +35,11 @@ assetopt optimize ./public
 
 Three integration patterns, ordered by friction. Pick the one matching your project, then read the full guide.
 
-| Workflow | When to use | Guide |
-|----------|-------------|-------|
-| **CI pre-deploy** | You have a build (Vite, Next, Astro…) producing `dist/`. Optimize before deploy. | [ci-predeploy.md](./docs/workflows/ci-predeploy.md) |
-| **Hand-written static site** | You write HTML by hand and reference images by literal filenames. | [static-site.md](./docs/workflows/static-site.md) |
-| **Asset prep before integration** | You receive raw assets, optimize them, then write the references yourself. | [asset-prep.md](./docs/workflows/asset-prep.md) |
+| Workflow                          | When to use                                                                      | Guide                                               |
+| --------------------------------- | -------------------------------------------------------------------------------- | --------------------------------------------------- |
+| **CI pre-deploy**                 | You have a build (Vite, Next, Astro…) producing `dist/`. Optimize before deploy. | [ci-predeploy.md](./docs/workflows/ci-predeploy.md) |
+| **Hand-written static site**      | You write HTML by hand and reference images by literal filenames.                | [static-site.md](./docs/workflows/static-site.md)   |
+| **Asset prep before integration** | You receive raw assets, optimize them, then write the references yourself.       | [asset-prep.md](./docs/workflows/asset-prep.md)     |
 
 The `web-perf` preset (which converts `.jpg → .webp` and `.png → .webp`/`.avif`) is safe in workflows 1 and 3 only. **Don't enable it on a hand-written site** — it breaks every `<img>` tag.
 
@@ -94,24 +94,24 @@ For fine-grained control, override per source format:
 
 ## Commands
 
-| Command | Effect |
-|---------|--------|
-| `assetopt optimize [dir]` | Optimize and write results to `output.dir` |
-| `assetopt analyze [dir]` | Dry-run: report savings without writing files |
-| `assetopt audit [dir]` | Flag problematic assets (oversized, optimization potential) |
-| `assetopt init` | Create a default `.assetoptrc` |
+| Command                   | Effect                                                      |
+| ------------------------- | ----------------------------------------------------------- |
+| `assetopt optimize [dir]` | Optimize and write results to `output.dir`                  |
+| `assetopt analyze [dir]`  | Dry-run: report savings without writing files               |
+| `assetopt audit [dir]`    | Flag problematic assets (oversized, optimization potential) |
+| `assetopt init`           | Create a default `.assetoptrc`                              |
 
 ### Flags
 
-| Flag | Commands | Effect |
-|------|----------|--------|
-| `-o, --output <dir>` | `optimize`, `analyze` | Override `output.dir` from config for this run |
-| `--min-savings <%>` | `optimize`, `analyze` | Exit 1 if total savings < threshold (CI quality gate) |
-| `--no-cache` | `optimize`, `analyze` | Bypass the incremental cache |
-| `--json` | `optimize` | Raw JSON report (for scripts and downstream tooling) |
-| `--savings` | `audit` | Run a full pipeline dry-run to compute per-file savings |
-| `--threshold <%>` | `audit` | Min savings % to flag a file (requires `--savings`, default `10`) |
-| `--force` | `init` | Overwrite an existing `.assetoptrc` |
+| Flag                 | Commands              | Effect                                                            |
+| -------------------- | --------------------- | ----------------------------------------------------------------- |
+| `-o, --output <dir>` | `optimize`, `analyze` | Override `output.dir` from config for this run                    |
+| `--min-savings <%>`  | `optimize`, `analyze` | Exit 1 if total savings < threshold (CI quality gate)             |
+| `--no-cache`         | `optimize`, `analyze` | Bypass the incremental cache                                      |
+| `--json`             | `optimize`            | Raw JSON report (for scripts and downstream tooling)              |
+| `--savings`          | `audit`               | Run a full pipeline dry-run to compute per-file savings           |
+| `--threshold <%>`    | `audit`               | Min savings % to flag a file (requires `--savings`, default `10`) |
+| `--force`            | `init`                | Overwrite an existing `.assetoptrc`                               |
 
 ## Incremental cache
 

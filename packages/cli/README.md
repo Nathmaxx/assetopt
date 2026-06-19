@@ -25,12 +25,12 @@ assetopt optimize ./public
 
 ## Commands
 
-| Command | Effect |
-|---------|--------|
-| `assetopt optimize [dir]` | Optimize and write results to `output.dir` |
-| `assetopt analyze [dir]` | Dry-run: report savings without writing files |
-| `assetopt audit [dir]` | Flag problematic assets (oversized, optimization potential) |
-| `assetopt init` | Create a default `.assetoptrc` |
+| Command                   | Effect                                                      |
+| ------------------------- | ----------------------------------------------------------- |
+| `assetopt optimize [dir]` | Optimize and write results to `output.dir`                  |
+| `assetopt analyze [dir]`  | Dry-run: report savings without writing files               |
+| `assetopt audit [dir]`    | Flag problematic assets (oversized, optimization potential) |
+| `assetopt init`           | Create a default `.assetoptrc`                              |
 
 Run `assetopt <command> --help` to see every flag and option.
 

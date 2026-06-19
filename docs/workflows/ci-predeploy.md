@@ -73,6 +73,7 @@ On subsequent runs, the cache kicks in:
 1. **Don't run `optimize` on source folders** (`src/`, `public/`). Those assets haven't been processed by your build yet, and your bundled imports usually won't pick up the optimized copies. Always target the build output.
 
 2. **Persist the cache between CI runs.** The manifest lives in `<output.dir>/.assetopt-cache.json`. CI typically wipes the workspace, killing the cache. In GitHub Actions, add a step to cache the `./optimized/` directory keyed on a hash of `dist/`:
+
    ```yaml
    - uses: actions/cache@v4
      with:

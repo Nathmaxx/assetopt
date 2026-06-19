@@ -73,11 +73,7 @@ function stableStringify(value: unknown): string {
  * The version argument is bumped on every release of `@assetopt/core`,
  * so any change to the optimizer logic invalidates every entry.
  */
-export function computeCacheKey(
-  buffer: Buffer,
-  options: unknown,
-  version: string,
-): string {
+export function computeCacheKey(buffer: Buffer, options: unknown, version: string): string {
   const hash = createHash('sha256');
   hash.update(buffer);
   hash.update('\x00');

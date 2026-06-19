@@ -10,13 +10,13 @@ Pro will live in a separate, private repo (`assetopt-pro`) and depend on `@asset
 
 ## How it differs from the free CLI
 
-| | Free CLI | Pro |
-|---|---|---|
-| **Mode** | One-shot, on-demand (`assetopt optimize`) | Continuous — build plugins, editor, CI |
-| **Format conversion in production** | Safe only when you control HTML integration | Safe everywhere — plugins rewrite imports automatically |
-| **Output** | Optimized files in `./optimized/` | Optimized files **+** auto-injected `<picture>` / `srcset` / `loading="lazy"` |
-| **Lighthouse impact** | Indirect (smaller files) | Direct (responsive variants + modern formats served correctly) |
-| **License** | MIT | Paid one-shot, source available to license holders |
+|                                     | Free CLI                                    | Pro                                                                           |
+| ----------------------------------- | ------------------------------------------- | ----------------------------------------------------------------------------- |
+| **Mode**                            | One-shot, on-demand (`assetopt optimize`)   | Continuous — build plugins, editor, CI                                        |
+| **Format conversion in production** | Safe only when you control HTML integration | Safe everywhere — plugins rewrite imports automatically                       |
+| **Output**                          | Optimized files in `./optimized/`           | Optimized files **+** auto-injected `<picture>` / `srcset` / `loading="lazy"` |
+| **Lighthouse impact**               | Indirect (smaller files)                    | Direct (responsive variants + modern formats served correctly)                |
+| **License**                         | MIT                                         | Paid one-shot, source available to license holders                            |
 
 ---
 

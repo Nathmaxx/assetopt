@@ -100,10 +100,7 @@ describe('loadConfig', () => {
   });
 
   it('throws on unknown preset name', async () => {
-    await writeFile(
-      join(tmpDir, '.assetoptrc'),
-      JSON.stringify({ preset: 'nonexistent-preset' }),
-    );
+    await writeFile(join(tmpDir, '.assetoptrc'), JSON.stringify({ preset: 'nonexistent-preset' }));
     await expect(loadConfig(tmpDir)).rejects.toThrow(/Invalid /);
   });
 });

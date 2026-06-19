@@ -3,7 +3,14 @@ import type { Command } from 'commander';
 import pc from 'picocolors';
 import { loadConfig, scanDirectory, getAssetType, getFileSize, runPipeline } from '@assetopt/core';
 import type { AssetType, AssetoptConfig } from '@assetopt/core';
-import { formatBytes, formatDuration, formatAuditRow, printProgress, clearProgress, printConfigSource } from '../utils/format.js';
+import {
+  formatBytes,
+  formatDuration,
+  formatAuditRow,
+  printProgress,
+  clearProgress,
+  printConfigSource,
+} from '../utils/format.js';
 import { handleCliError } from '../utils/error.js';
 
 const SIZE_THRESHOLDS: Partial<Record<AssetType, number>> = {
@@ -89,7 +96,9 @@ async function runFullAudit(
       issues.push(`oversized (${formatBytes(asset.inputSize)} > ${formatBytes(threshold)})`);
     }
     if (asset.savedPercent >= minSavings) {
-      issues.push(`would save ${formatBytes(asset.savedBytes)} (-${asset.savedPercent.toFixed(1)}%)`);
+      issues.push(
+        `would save ${formatBytes(asset.savedBytes)} (-${asset.savedPercent.toFixed(1)}%)`,
+      );
     }
 
     return { filePath: asset.inputPath, type: asset.assetType, size: asset.inputSize, issues };
@@ -118,7 +127,9 @@ function printAuditResults(
 
 function printSummary(flaggedCount: number, clean: number, duration: number): void {
   if (flaggedCount === 0) {
-    console.log(`  ${pc.green(pc.bold('All good!'))} ${pc.dim(`${clean + flaggedCount} files checked · ${formatDuration(duration)}`)}`);
+    console.log(
+      `  ${pc.green(pc.bold('All good!'))} ${pc.dim(`${clean + flaggedCount} files checked · ${formatDuration(duration)}`)}`,
+    );
   } else {
     const issueLabel = pc.red(pc.bold(`${flaggedCount} issue${flaggedCount > 1 ? 's' : ''} found`));
     const cleanLabel = pc.dim(`${clean} file${clean !== 1 ? 's' : ''} clean`);

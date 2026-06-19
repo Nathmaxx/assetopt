@@ -83,13 +83,13 @@ assetopt knows how to recompress an asset in its original format **and** to conv
 
 Under the hood, the preset applies:
 
-| Source format | Target | Why |
-|---------------|--------|-----|
-| JPEG | WebP | WebP beats JPEG on virtually every photo |
-| Opaque PNG | WebP | WebP is lighter than AVIF on transparency-free images |
-| Transparent PNG | AVIF | AVIF preserves alpha at a lower size than WebP |
-| WebP | unchanged | Already optimal |
-| AVIF | unchanged | Already optimal |
+| Source format   | Target    | Why                                                   |
+| --------------- | --------- | ----------------------------------------------------- |
+| JPEG            | WebP      | WebP beats JPEG on virtually every photo              |
+| Opaque PNG      | WebP      | WebP is lighter than AVIF on transparency-free images |
+| Transparent PNG | AVIF      | AVIF preserves alpha at a lower size than WebP        |
+| WebP            | unchanged | Already optimal                                       |
+| AVIF            | unchanged | Already optimal                                       |
 
 **When to use**: workflows where you control HTML integration (build with a plugin, asset prep before integration). **Avoid** on a hand-written site that hard-codes `.jpg` in `<img>` tags — see the README workflows section.
 
@@ -176,9 +176,9 @@ assetopt optimize ./public --no-cache    # force a full re-run
 
 **Don't confuse with `'keep'` in the matrix**:
 
-| Construct | Effect |
-|-----------|--------|
-| `images.skip: ["png"]` | PNGs are **ignored** — absent from report, cache, and output |
+| Construct                       | Effect                                                          |
+| ------------------------------- | --------------------------------------------------------------- |
+| `images.skip: ["png"]`          | PNGs are **ignored** — absent from report, cache, and output    |
 | `formatMatrix: { png: 'keep' }` | PNGs are **processed** (recompressed) without format conversion |
 
 Typical use case: you already serve pre-optimized AVIFs and you want assetopt to leave them strictly alone.
@@ -197,12 +197,12 @@ assetopt audit ./public --savings --threshold 20 # flag threshold at 20%
 
 **Fast mode (default)**: only reads file size, flags oversized files per type:
 
-| Type | Default threshold |
-|------|-------------------|
-| Image | 500 KB |
-| JavaScript | 100 KB |
-| CSS | 50 KB |
-| SVG | 50 KB |
+| Type       | Default threshold |
+| ---------- | ----------------- |
+| Image      | 500 KB            |
+| JavaScript | 100 KB            |
+| CSS        | 50 KB             |
+| SVG        | 50 KB             |
 
 **Full mode (`--savings`)**: runs the pipeline as a dry-run to compute potential savings per file. Also flags files where savings would exceed `--threshold` (default 10%). Slower, but writes nothing.
 
@@ -222,11 +222,12 @@ assetopt analyze dist --min-savings 15
 Available on both `optimize` and `analyze`. The threshold compares the report's `totalSavedPercent` (overall savings, not per file).
 
 **Use cases**:
+
 - Block a deploy that contains accidentally-unoptimized assets.
 - Detect a pipeline regression (e.g. a dependency that re-introduces EXIF metadata, a build that no longer pipes through assetopt).
 - On `analyze`, confirm in pre-build that there's still gain to extract before launching a costly optimize.
 
-**Note**: the threshold is *global*. For a *per-file* threshold, you'll want the advanced CI/CD features in [Pro](./pro.md).
+**Note**: the threshold is _global_. For a _per-file_ threshold, you'll want the advanced CI/CD features in [Pro](./pro.md).
 
 ---
 

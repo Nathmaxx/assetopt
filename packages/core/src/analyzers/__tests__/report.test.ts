@@ -30,7 +30,10 @@ describe('buildReport', () => {
 
   it('computes totalSavedBytes', () => {
     const result = buildReport(
-      [makeAsset({ inputSize: 1000, outputSize: 600 }), makeAsset({ inputSize: 500, outputSize: 400 })],
+      [
+        makeAsset({ inputSize: 1000, outputSize: 600 }),
+        makeAsset({ inputSize: 500, outputSize: 400 }),
+      ],
       0,
     );
     expect(result.totalSavedBytes).toBe(500);
@@ -71,11 +74,7 @@ describe('buildReport', () => {
 
   it('counts cached assets', () => {
     const result = buildReport(
-      [
-        makeAsset({ cached: true }),
-        makeAsset({ cached: true }),
-        makeAsset({ cached: false }),
-      ],
+      [makeAsset({ cached: true }), makeAsset({ cached: true }), makeAsset({ cached: false })],
       0,
     );
     expect(result.cachedCount).toBe(2);

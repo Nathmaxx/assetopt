@@ -15,7 +15,10 @@ export function registerAnalyze(program: Command): void {
   program
     .command('analyze [dir]')
     .description('Analyze assets and report potential savings without modifying files')
-    .option('-o, --output <dir>', 'output directory used for cache lookup (overrides output.dir from config)')
+    .option(
+      '-o, --output <dir>',
+      'output directory used for cache lookup (overrides output.dir from config)',
+    )
     .option('--min-savings <percent>', 'fail (exit 1) if total savings are below this percent')
     .option('--no-cache', 'bypass the incremental cache (re-analyze every asset from scratch)')
     .action(async (dir: string = '.', options: AnalyzeCommandOptions) => {

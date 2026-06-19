@@ -57,9 +57,7 @@ describe('dispatch', () => {
     });
 
     it('throws for unknown extension', async () => {
-      await expect(dispatch('file.xyz', Buffer.from(''))).rejects.toThrow(
-        'Unsupported asset type',
-      );
+      await expect(dispatch('file.xyz', Buffer.from(''))).rejects.toThrow('Unsupported asset type');
     });
   });
 

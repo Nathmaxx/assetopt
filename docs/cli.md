@@ -14,10 +14,10 @@ assetopt <command> [arguments] [options]
 
 These come from commander and apply to every command:
 
-| Flag | Effect |
-|------|--------|
-| `--help`, `-h` | Print help for the program or for a specific command |
-| `--version`, `-V` | Print the installed CLI version |
+| Flag              | Effect                                               |
+| ----------------- | ---------------------------------------------------- |
+| `--help`, `-h`    | Print help for the program or for a specific command |
+| `--version`, `-V` | Print the installed CLI version                      |
 
 ```bash
 assetopt --help
@@ -43,16 +43,16 @@ None.
 
 ### Options
 
-| Option | Default | Effect |
-|--------|---------|--------|
-| `--force` | _off_ | Overwrite the existing `.assetoptrc` if one is present |
+| Option    | Default | Effect                                                 |
+| --------- | ------- | ------------------------------------------------------ |
+| `--force` | _off_   | Overwrite the existing `.assetoptrc` if one is present |
 
 ### Exit codes
 
-| Code | Condition |
-|------|-----------|
-| `0` | File created (or overwritten with `--force`) |
-| `1` | `.assetoptrc` already exists and `--force` was not passed |
+| Code | Condition                                                 |
+| ---- | --------------------------------------------------------- |
+| `0`  | File created (or overwritten with `--force`)              |
+| `1`  | `.assetoptrc` already exists and `--force` was not passed |
 
 ### Examples
 
@@ -84,24 +84,24 @@ assetopt analyze [dir] [-o, --output <dir>] [--min-savings <percent>] [--no-cach
 
 ### Arguments
 
-| Argument | Default | Effect |
-|----------|---------|--------|
-| `dir` | `.` | Source directory to scan recursively |
+| Argument | Default | Effect                               |
+| -------- | ------- | ------------------------------------ |
+| `dir`    | `.`     | Source directory to scan recursively |
 
 ### Options
 
-| Option | Default | Effect |
-|--------|---------|--------|
-| `-o, --output <dir>` | from config (`./optimized`) | Override `output.dir` from config — used here for cache lookup |
-| `--min-savings <percent>` | _off_ | Fail with exit code 1 if total savings are below this percent. Value must be a finite number between 0 and 100 |
-| `--no-cache` | _off_ | Bypass the incremental cache (read every asset from scratch) |
+| Option                    | Default                     | Effect                                                                                                         |
+| ------------------------- | --------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `-o, --output <dir>`      | from config (`./optimized`) | Override `output.dir` from config — used here for cache lookup                                                 |
+| `--min-savings <percent>` | _off_                       | Fail with exit code 1 if total savings are below this percent. Value must be a finite number between 0 and 100 |
+| `--no-cache`              | _off_                       | Bypass the incremental cache (read every asset from scratch)                                                   |
 
 ### Exit codes
 
-| Code | Condition |
-|------|-----------|
-| `0` | Analyze ran successfully and `--min-savings` (if set) was satisfied |
-| `1` | `--min-savings` threshold not met, invalid threshold value, or any pipeline error |
+| Code | Condition                                                                         |
+| ---- | --------------------------------------------------------------------------------- |
+| `0`  | Analyze ran successfully and `--min-savings` (if set) was satisfied               |
+| `1`  | `--min-savings` threshold not met, invalid threshold value, or any pipeline error |
 
 ### Examples
 
@@ -142,25 +142,25 @@ assetopt optimize [dir] [-o, --output <dir>] [--json] [--min-savings <percent>] 
 
 ### Arguments
 
-| Argument | Default | Effect |
-|----------|---------|--------|
-| `dir` | `.` | Source directory to scan recursively |
+| Argument | Default | Effect                               |
+| -------- | ------- | ------------------------------------ |
+| `dir`    | `.`     | Source directory to scan recursively |
 
 ### Options
 
-| Option | Default | Effect |
-|--------|---------|--------|
-| `-o, --output <dir>` | from config (`./optimized`) | Override `output.dir` from config for this run |
-| `--json` | _off_ | Output the report as JSON on stdout. Suppresses the colored summary, the progress bar, and the config-source banner |
-| `--min-savings <percent>` | _off_ | Fail with exit code 1 if total savings are below this percent. Value must be a finite number between 0 and 100 |
-| `--no-cache` | _off_ | Bypass the incremental cache (force re-processing of every asset, do not write the manifest) |
+| Option                    | Default                     | Effect                                                                                                              |
+| ------------------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `-o, --output <dir>`      | from config (`./optimized`) | Override `output.dir` from config for this run                                                                      |
+| `--json`                  | _off_                       | Output the report as JSON on stdout. Suppresses the colored summary, the progress bar, and the config-source banner |
+| `--min-savings <percent>` | _off_                       | Fail with exit code 1 if total savings are below this percent. Value must be a finite number between 0 and 100      |
+| `--no-cache`              | _off_                       | Bypass the incremental cache (force re-processing of every asset, do not write the manifest)                        |
 
 ### Exit codes
 
-| Code | Condition |
-|------|-----------|
-| `0` | Optimization ran successfully and `--min-savings` (if set) was satisfied |
-| `1` | `--min-savings` threshold not met, invalid threshold value, or any pipeline error |
+| Code | Condition                                                                         |
+| ---- | --------------------------------------------------------------------------------- |
+| `0`  | Optimization ran successfully and `--min-savings` (if set) was satisfied          |
+| `1`  | `--min-savings` threshold not met, invalid threshold value, or any pipeline error |
 
 ### Examples
 
@@ -204,23 +204,23 @@ assetopt audit [dir] [--savings] [--threshold <percent>]
 
 ### Arguments
 
-| Argument | Default | Effect |
-|----------|---------|--------|
-| `dir` | `.` | Source directory to scan recursively |
+| Argument | Default | Effect                               |
+| -------- | ------- | ------------------------------------ |
+| `dir`    | `.`     | Source directory to scan recursively |
 
 ### Options
 
-| Option | Default | Effect |
-|--------|---------|--------|
-| `--savings` | _off_ | Run a full pipeline dry-run to compute potential savings per file. Flags files where savings would exceed `--threshold`. Slower than the default mode |
-| `--threshold <percent>` | `10` | Minimum savings percent to flag a file. Only meaningful with `--savings` |
+| Option                  | Default | Effect                                                                                                                                                |
+| ----------------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--savings`             | _off_   | Run a full pipeline dry-run to compute potential savings per file. Flags files where savings would exceed `--threshold`. Slower than the default mode |
+| `--threshold <percent>` | `10`    | Minimum savings percent to flag a file. Only meaningful with `--savings`                                                                              |
 
 ### Exit codes
 
-| Code | Condition |
-|------|-----------|
-| `0` | No file flagged |
-| `1` | At least one file was flagged for any reason (oversized or above the savings threshold) |
+| Code | Condition                                                                               |
+| ---- | --------------------------------------------------------------------------------------- |
+| `0`  | No file flagged                                                                         |
+| `1`  | At least one file was flagged for any reason (oversized or above the savings threshold) |
 
 ### Examples
 
@@ -240,11 +240,11 @@ assetopt audit ./public --savings --threshold 25
 **Fast mode (default)**: reads only file size. Flags assets larger than these built-in thresholds:
 
 | Asset type | Threshold |
-|------------|-----------|
-| Image | 500 KB |
-| JavaScript | 100 KB |
-| CSS | 50 KB |
-| SVG | 50 KB |
+| ---------- | --------- |
+| Image      | 500 KB    |
+| JavaScript | 100 KB    |
+| CSS        | 50 KB     |
+| SVG        | 50 KB     |
 
 **Full mode (`--savings`)**: runs the optimization pipeline as a dry-run. In addition to the size flag, files whose potential savings exceed `--threshold` are flagged with `would save X (-Y%)`. The cache is consulted to avoid re-processing unchanged files.
 
@@ -285,12 +285,12 @@ All commands route unhandled errors through a single helper that prints `Error: 
 
 Common errors:
 
-| Message | Cause |
-|---------|-------|
-| `Invalid /path/to/.assetoptrc: ...` | The config file failed JSON parsing or zod validation |
-| `Invalid --min-savings value: "X" (expected a number between 0 and 100)` | The threshold is non-finite, negative, or above 100 |
-| `Error: ENOENT: no such file or directory, ...` | The target `dir` doesn't exist |
-| `Error: .assetoptrc already exists. Use --force to overwrite.` | `init` ran without `--force` against an existing file |
+| Message                                                                  | Cause                                                 |
+| ------------------------------------------------------------------------ | ----------------------------------------------------- |
+| `Invalid /path/to/.assetoptrc: ...`                                      | The config file failed JSON parsing or zod validation |
+| `Invalid --min-savings value: "X" (expected a number between 0 and 100)` | The threshold is non-finite, negative, or above 100   |
+| `Error: ENOENT: no such file or directory, ...`                          | The target `dir` doesn't exist                        |
+| `Error: .assetoptrc already exists. Use --force to overwrite.`           | `init` ran without `--force` against an existing file |
 
 ---
 

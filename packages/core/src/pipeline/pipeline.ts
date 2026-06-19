@@ -59,8 +59,7 @@ function resolveOutputPath(
 ): string {
   const relative = path.relative(inputDir, inputPath);
   const ext = path.extname(relative);
-  const renamed =
-    newExt && newExt !== ext ? relative.slice(0, -ext.length) + newExt : relative;
+  const renamed = newExt && newExt !== ext ? relative.slice(0, -ext.length) + newExt : relative;
   return path.resolve(outputDir, renamed);
 }
 
@@ -102,9 +101,7 @@ export async function runPipeline(
 
     const start = Date.now();
     const buffer = await readBuffer(filePath);
-    const cacheKey = useCache
-      ? computeCacheKey(buffer, hashableConfig, CORE_VERSION)
-      : null;
+    const cacheKey = useCache ? computeCacheKey(buffer, hashableConfig, CORE_VERSION) : null;
 
     if (cacheKey !== null) {
       const entry = manifest[cacheKey];
@@ -130,8 +127,7 @@ export async function runPipeline(
     }
 
     const dispatched = await dispatch(filePath, buffer, config);
-    const newExt =
-      dispatched.assetType === 'image' ? FORMAT_TO_EXT[dispatched.format] : undefined;
+    const newExt = dispatched.assetType === 'image' ? FORMAT_TO_EXT[dispatched.format] : undefined;
 
     const outputPath = resolveOutputPath(filePath, inputDir, outputDir, newExt);
 

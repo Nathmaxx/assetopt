@@ -6,10 +6,7 @@ export const SVG_DEFAULTS = {
   minifyIds: false,
 } satisfies SvgOptimizeOptions;
 
-export function optimizeSvg(
-  input: Buffer,
-  options: SvgOptimizeOptions = {},
-): SvgBufferResult {
+export function optimizeSvg(input: Buffer, options: SvgOptimizeOptions = {}): SvgBufferResult {
   const multipass = options.multipass ?? SVG_DEFAULTS.multipass;
   const minifyIds = options.minifyIds ?? SVG_DEFAULTS.minifyIds;
 

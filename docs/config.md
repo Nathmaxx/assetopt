@@ -31,14 +31,14 @@ Every field is optional. The minimum viable config is `{}` — everything falls 
 
 ## Top-level fields
 
-| Field | Type | Default | Description |
-|-------|------|---------|-------------|
-| `preset` | `"web-perf"` | _none_ | Apply a built-in config preset before merging the rest of your config. See [Presets](#presets). |
-| `images` | `object` | `IMAGE_DEFAULTS` | Image optimization options. See [`images`](#images). |
-| `css` | `object` | `{ minify: true }` | CSS optimization options. See [`css`](#css). |
-| `js` | `object` | `{ minify: true }` | JavaScript optimization options. See [`js`](#js). |
-| `svg` | `object` | `{ multipass: true, minifyIds: false }` | SVG optimization options. See [`svg`](#svg). |
-| `output` | `object` | `{ dir: "./optimized" }` | Output settings. See [`output`](#output). |
+| Field    | Type         | Default                                 | Description                                                                                     |
+| -------- | ------------ | --------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `preset` | `"web-perf"` | _none_                                  | Apply a built-in config preset before merging the rest of your config. See [Presets](#presets). |
+| `images` | `object`     | `IMAGE_DEFAULTS`                        | Image optimization options. See [`images`](#images).                                            |
+| `css`    | `object`     | `{ minify: true }`                      | CSS optimization options. See [`css`](#css).                                                    |
+| `js`     | `object`     | `{ minify: true }`                      | JavaScript optimization options. See [`js`](#js).                                               |
+| `svg`    | `object`     | `{ multipass: true, minifyIds: false }` | SVG optimization options. See [`svg`](#svg).                                                    |
+| `output` | `object`     | `{ dir: "./optimized" }`                | Output settings. See [`output`](#output).                                                       |
 
 ---
 
@@ -46,10 +46,10 @@ Every field is optional. The minimum viable config is `{}` — everything falls 
 
 ### `preset`
 
-| | |
-|---|---|
-| **Type** | `"web-perf"` |
-| **Default** | _none_ |
+|                 |                                           |
+| --------------- | ----------------------------------------- |
+| **Type**        | `"web-perf"`                              |
+| **Default**     | _none_                                    |
 | **Constraints** | Must be one of the supported preset names |
 
 Currently a single preset is shipped:
@@ -68,10 +68,10 @@ When set, the preset's config is layered on top of `DEFAULTS` and below your use
 
 ### `images.outputFormat`
 
-| | |
-|---|---|
-| **Type** | `"keep" \| "webp" \| "avif"` |
-| **Default** | `"keep"` |
+|                 |                                                                                                                                 |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| **Type**        | `"keep" \| "webp" \| "avif"`                                                                                                    |
+| **Default**     | `"keep"`                                                                                                                        |
 | **Constraints** | Must be one of the listed values. `"jpeg"` and `"png"` are not accepted as a global output format — use `formatMatrix` instead. |
 
 Global output format applied to every image when no `formatMatrix` entry overrides it.
@@ -84,10 +84,10 @@ Global output format applied to every image when no `formatMatrix` entry overrid
 
 ### `images.formatMatrix`
 
-| | |
-|---|---|
-| **Type** | `Partial<Record<"jpeg"\|"png"\|"webp"\|"avif", "jpeg"\|"png"\|"webp"\|"avif"\|"keep">>` |
-| **Default** | _none_ (unless set by a preset) |
+|                 |                                                                                                                                                                 |
+| --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Type**        | `Partial<Record<"jpeg"\|"png"\|"webp"\|"avif", "jpeg"\|"png"\|"webp"\|"avif"\|"keep">>`                                                                         |
+| **Default**     | _none_ (unless set by a preset)                                                                                                                                 |
 | **Constraints** | Strict object — unknown keys are rejected at parse time. Function values are valid programmatically but not in JSON. See [Programmatic API](#programmatic-api). |
 
 Per-source-format conversion rules. Takes precedence over `outputFormat`. The value `"keep"` explicitly excludes a format from conversion.
@@ -109,11 +109,11 @@ Per-source-format conversion rules. Takes precedence over `outputFormat`. The va
 
 ### `images.quality`
 
-| | |
-|---|---|
-| **Type** | `{ jpeg?: number, png?: number, webp?: number, avif?: number }` |
-| **Defaults** | `{ jpeg: 85, png: 80, webp: 82, avif: 75 }` |
-| **Constraints** | Each value must be an integer between 1 and 100 inclusive |
+|                 |                                                                 |
+| --------------- | --------------------------------------------------------------- |
+| **Type**        | `{ jpeg?: number, png?: number, webp?: number, avif?: number }` |
+| **Defaults**    | `{ jpeg: 85, png: 80, webp: 82, avif: 75 }`                     |
+| **Constraints** | Each value must be an integer between 1 and 100 inclusive       |
 
 Per-format compression quality. Higher = better visual fidelity, larger files.
 
@@ -125,10 +125,10 @@ Partial overrides are deep-merged: setting `quality.jpeg` to 80 leaves `png`, `w
 
 ### `images.stripMetadata`
 
-| | |
-|---|---|
-| **Type** | `boolean` |
-| **Default** | `true` |
+|             |           |
+| ----------- | --------- |
+| **Type**    | `boolean` |
+| **Default** | `true`    |
 
 When `true`, EXIF and ICC profile data is removed from the output. Set to `false` for stock photography where attribution lives in IPTC metadata.
 
@@ -138,10 +138,10 @@ When `true`, EXIF and ICC profile data is removed from the output. Set to `false
 
 ### `images.skip`
 
-| | |
-|---|---|
-| **Type** | `Array<"jpeg" \| "png" \| "webp" \| "avif">` |
-| **Default** | `[]` |
+|                 |                                              |
+| --------------- | -------------------------------------------- |
+| **Type**        | `Array<"jpeg" \| "png" \| "webp" \| "avif">` |
+| **Default**     | `[]`                                         |
 | **Constraints** | Each entry must be a supported source format |
 
 List of source formats to ignore entirely. Skipped files are not read, not written, not cached, and absent from the report.
@@ -158,10 +158,10 @@ List of source formats to ignore entirely. Skipped files are not read, not writt
 
 ### `css.minify`
 
-| | |
-|---|---|
-| **Type** | `boolean` |
-| **Default** | `true` |
+|             |           |
+| ----------- | --------- |
+| **Type**    | `boolean` |
+| **Default** | `true`    |
 
 When `true`, CSS is minified via `lightningcss`. When `false`, the input is passed through unchanged.
 
@@ -175,10 +175,10 @@ When `true`, CSS is minified via `lightningcss`. When `false`, the input is pass
 
 ### `js.minify`
 
-| | |
-|---|---|
-| **Type** | `boolean` |
-| **Default** | `true` |
+|             |           |
+| ----------- | --------- |
+| **Type**    | `boolean` |
+| **Default** | `true`    |
 
 When `true`, JS is minified via `esbuild` (whitespace + identifiers + syntax). When `false`, the input is passed through unchanged.
 
@@ -192,19 +192,19 @@ When `true`, JS is minified via `esbuild` (whitespace + identifiers + syntax). W
 
 ### `svg.multipass`
 
-| | |
-|---|---|
-| **Type** | `boolean` |
-| **Default** | `true` |
+|             |           |
+| ----------- | --------- |
+| **Type**    | `boolean` |
+| **Default** | `true`    |
 
 When `true`, `svgo` re-applies its optimization pass until the output stops shrinking. Slower but more thorough. Disable for faster runs on very large SVG batches.
 
 ### `svg.minifyIds`
 
-| | |
-|---|---|
-| **Type** | `boolean` |
-| **Default** | `false` |
+|             |           |
+| ----------- | --------- |
+| **Type**    | `boolean` |
+| **Default** | `false`   |
 
 When `true`, SVG `id` attributes are renamed to short forms. Disabled by default because external CSS or sprite references (`url(#myIcon)`) can break. Safe to enable for self-contained inline icons.
 
@@ -218,9 +218,9 @@ When `true`, SVG `id` attributes are renamed to short forms. Disabled by default
 
 ### `output.dir`
 
-| | |
-|---|---|
-| **Type** | `string` |
+|             |                 |
+| ----------- | --------------- |
+| **Type**    | `string`        |
 | **Default** | `"./optimized"` |
 
 Destination directory for the optimized assets. Resolved relative to the directory where you invoke the CLI (or the absolute path if provided). Created automatically if it doesn't exist.
@@ -279,7 +279,9 @@ A function that takes a `FormatRoutingContext` and returns a target format (or `
 
 ```ts
 type FormatRoutingContext = { hasAlpha: boolean };
-type FormatMatrixResolver = (ctx: FormatRoutingContext) => 'jpeg' | 'png' | 'webp' | 'avif' | 'keep';
+type FormatMatrixResolver = (
+  ctx: FormatRoutingContext,
+) => 'jpeg' | 'png' | 'webp' | 'avif' | 'keep';
 ```
 
 This is exactly how the `web-perf` preset implements its PNG smart routing.
@@ -300,14 +302,14 @@ Error: Invalid /home/me/proj/.assetoptrc: <zod error message>
 
 Common validation errors:
 
-| Cause | Example message fragment |
-|-------|--------------------------|
-| Wrong type | `Expected boolean, received string` |
-| Out-of-range quality | `Number must be greater than or equal to 1` / `less than or equal to 100` |
-| Unknown source format in `skip` | `Invalid enum value. Expected 'jpeg' \| 'png' \| 'webp' \| 'avif'` |
-| Unknown key in `formatMatrix` | `Unrecognized key(s) in object: '...'` (strict object) |
-| Unknown preset name | `Invalid enum value. Expected 'web-perf'` |
-| Invalid global `outputFormat` | `Invalid enum value. Expected 'keep' \| 'webp' \| 'avif'` (note: `'jpeg'` and `'png'` are intentionally not accepted globally — use `formatMatrix` for those) |
+| Cause                           | Example message fragment                                                                                                                                      |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Wrong type                      | `Expected boolean, received string`                                                                                                                           |
+| Out-of-range quality            | `Number must be greater than or equal to 1` / `less than or equal to 100`                                                                                     |
+| Unknown source format in `skip` | `Invalid enum value. Expected 'jpeg' \| 'png' \| 'webp' \| 'avif'`                                                                                            |
+| Unknown key in `formatMatrix`   | `Unrecognized key(s) in object: '...'` (strict object)                                                                                                        |
+| Unknown preset name             | `Invalid enum value. Expected 'web-perf'`                                                                                                                     |
+| Invalid global `outputFormat`   | `Invalid enum value. Expected 'keep' \| 'webp' \| 'avif'` (note: `'jpeg'` and `'png'` are intentionally not accepted globally — use `formatMatrix` for those) |
 
 All other top-level keys are tolerated silently (forward-compat with future fields). To get an explicit error on unknown root keys, run your config through your own validator first.
 
