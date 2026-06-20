@@ -93,6 +93,22 @@ Under the hood, the preset applies:
 
 **When to use**: workflows where you control HTML integration (build with a plugin, asset prep before integration). **Avoid** on a hand-written site that hard-codes `.jpg` in `<img>` tags — see the README workflows section.
 
+### Other presets
+
+Three more presets cover common intents. Like `web-perf`, each is just a one-liner (`{ "preset": "<name>" }`) and stays fully overridable by your own config (preset → user config deep merge).
+
+| Preset            | Format routing                        | Quality                         | Metadata | Extras                        | When to use                                                    |
+| ----------------- | ------------------------------------- | ------------------------------- | -------- | ----------------------------- | -------------------------------------------------------------- |
+| `max-compression` | everything → AVIF (AVIF kept)         | `avif: 50` (others = defaults)  | stripped | SVG `multipass` + `minifyIds` | Smallest possible payload; you control HTML and can serve AVIF |
+| `quality`         | every format kept (no lossy switch)   | `jpeg/png/webp: 95`, `avif: 90` | **kept** | —                             | Fidelity-first: photography, print prep, color-managed assets  |
+| `compatibility`   | every format kept (never more modern) | defaults                        | stripped | —                             | Legacy targets: output stays as widely supported as the input  |
+
+Notes:
+
+- Image quality is keyed by the **output** format. Under `max-compression` everything converges to AVIF, so only `avif: 50` is in play; the other quality entries stay at their defaults but rarely apply.
+- `quality` is **not** bit-for-bit lossless — JPEG/WebP/AVIF remain lossy codecs, just pinned to a high quality floor. PNG stays PNG (lossless container). Metadata (EXIF, color profiles) is preserved.
+- `compatibility` performs no format surgery: it pins every source to `keep`, guaranteeing the output is never a more modern format than the input. It still recompresses at default quality.
+
 ### The `formatMatrix` (power user)
 
 **What you get**: per-format conversion rules, in pure JSON. Partial or full override of the preset.
@@ -163,6 +179,9 @@ assetopt optimize ./public --no-cache    # force a full re-run
 **Behavior with `analyze`**: `analyze` reads the cache to skip redundant work, but never writes the manifest (only `optimize` maintains it).
 
 **When to use `--no-cache`**: to faithfully reproduce a first-run, or to benchmark internal changes without bias.
+
+**Clearing the cache**: `assetopt clean` removes the manifest (force a fresh re-optimize next run);
+`assetopt clean --all` removes the whole output directory. See [CLI reference → clean](./cli.md#assetopt-clean).
 
 ---
 

@@ -92,6 +92,7 @@ export type { LoadedConfig };
 
 // Utilities
 export { scanDirectory, getAssetType, getFileSize };
+export { CACHE_FILE }; // name of the on-disk cache manifest, relative to output.dir
 
 // Types
 export type {

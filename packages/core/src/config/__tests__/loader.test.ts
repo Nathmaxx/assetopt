@@ -41,6 +41,56 @@ describe('resolveConfig', () => {
     expect(result.css?.minify).toBe(DEFAULTS.css?.minify);
   });
 
+  it('max-compression routes every format to avif at aggressive quality', () => {
+    const result = resolveConfig({ preset: 'max-compression' });
+    expect(result.images?.formatMatrix).toEqual({
+      jpeg: 'avif',
+      png: 'avif',
+      webp: 'avif',
+      avif: 'keep',
+    });
+    expect(result.images?.quality?.avif).toBe(50);
+    expect(result.svg).toEqual({ multipass: true, minifyIds: true });
+  });
+
+  it('max-compression keeps non-avif quality from DEFAULTS', () => {
+    const result = resolveConfig({ preset: 'max-compression' });
+    expect(result.images?.quality?.jpeg).toBe(DEFAULTS.images?.quality?.jpeg);
+  });
+
+  it('quality preset keeps formats, raises quality, preserves metadata', () => {
+    const result = resolveConfig({ preset: 'quality' });
+    expect(result.images?.formatMatrix).toEqual({
+      jpeg: 'keep',
+      png: 'keep',
+      webp: 'keep',
+      avif: 'keep',
+    });
+    expect(result.images?.quality).toEqual({ jpeg: 95, png: 95, webp: 95, avif: 90 });
+    expect(result.images?.stripMetadata).toBe(false);
+  });
+
+  it('compatibility preset keeps every format and DEFAULTS quality', () => {
+    const result = resolveConfig({ preset: 'compatibility' });
+    expect(result.images?.formatMatrix).toEqual({
+      jpeg: 'keep',
+      png: 'keep',
+      webp: 'keep',
+      avif: 'keep',
+    });
+    expect(result.images?.quality?.jpeg).toBe(DEFAULTS.images?.quality?.jpeg);
+    expect(result.images?.stripMetadata).toBe(DEFAULTS.images?.stripMetadata);
+  });
+
+  it('user quality overrides max-compression preset quality (deep merge)', () => {
+    const result = resolveConfig({
+      preset: 'max-compression',
+      images: { quality: { avif: 70 } },
+    });
+    expect(result.images?.quality?.avif).toBe(70); // user override
+    expect(result.images?.formatMatrix?.jpeg).toBe('avif'); // from preset
+  });
+
   it('user quality overrides DEFAULTS quality (existing behavior)', () => {
     const result = resolveConfig({
       images: { quality: { jpeg: 50 } },

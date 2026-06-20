@@ -31,6 +31,7 @@ assetopt optimize ./public
 | `assetopt analyze [dir]`  | Dry-run: report savings without writing files               |
 | `assetopt audit [dir]`    | Flag problematic assets (oversized, optimization potential) |
 | `assetopt init`           | Create a default `.assetoptrc`                              |
+| `assetopt clean`          | Remove the cache (or the whole output dir with `--all`)     |
 
 Run `assetopt <command> --help` to see every flag and option.
 

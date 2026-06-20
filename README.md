@@ -65,6 +65,11 @@ Drop a `.assetoptrc` at your project root. assetopt finds it automatically by wa
 ### Presets
 
 - **`web-perf`** — converts to modern formats automatically (`jpeg → webp`, `png → webp` if opaque or `avif` if transparent). Use only when you control HTML integration (workflow 1 or 3).
+- **`max-compression`** — smallest payload: every format → AVIF at aggressive quality, plus full SVG optimization. Same HTML-integration caveat as `web-perf`.
+- **`quality`** — fidelity-first: keeps every format at a high quality floor and preserves metadata (EXIF, color profiles). For photography or print prep.
+- **`compatibility`** — keeps every source format unchanged (never produces a more modern format than the input). Safe for legacy targets and hand-written sites.
+
+See [`docs/features.md`](docs/features.md#smart-format-conversion) for the full preset reference.
 
 ### Format matrix (advanced)
 

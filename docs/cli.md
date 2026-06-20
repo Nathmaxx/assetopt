@@ -260,6 +260,60 @@ assetopt audit ./public --savings --threshold 25
 
 ---
 
+## `assetopt clean`
+
+Remove the incremental cache manifest, or the whole output directory with `--all`.
+
+### Signature
+
+```
+assetopt clean [-o, --output <dir>] [--all] [--dry-run]
+```
+
+### Arguments
+
+None. The target is the **output** directory (`output.dir` from config, or `-o`), not a source dir.
+
+### Options
+
+| Option               | Default                     | Effect                                                                           |
+| -------------------- | --------------------------- | -------------------------------------------------------------------------------- |
+| `-o, --output <dir>` | from config (`./optimized`) | Output directory to clean, overriding `output.dir` from config                   |
+| `--all`              | _off_                       | Remove the entire output directory, not just the `.assetopt-cache.json` manifest |
+| `--dry-run`          | _off_                       | Print what would be removed without deleting anything                            |
+
+### Exit codes
+
+| Code | Condition                                                                             |
+| ---- | ------------------------------------------------------------------------------------- |
+| `0`  | Target removed, or nothing to remove (a missing target is not an error)               |
+| `1`  | `--all` would delete the current directory or a parent of it, or any filesystem error |
+
+### Examples
+
+```bash
+# Drop the cache so the next run re-optimizes everything from scratch
+assetopt clean
+
+# Wipe the whole build output (assets + cache)
+assetopt clean --all
+
+# Preview a full wipe without touching the disk
+assetopt clean --all --dry-run
+
+# Clean a non-default output directory
+assetopt clean -o ./build/static --all
+```
+
+### Notes
+
+- Default removes only `<output.dir>/.assetopt-cache.json`; the optimized assets are kept.
+- A missing target is reported (`Nothing to clean — …`) and exits `0` — `clean` is idempotent.
+- As a safety net, `--all` refuses to delete the current working directory or any of its parents
+  (e.g. when `output.dir` is set to `.`); point it at a dedicated build folder instead.
+
+---
+
 ## Configuration resolution
 
 For every command, the CLI:

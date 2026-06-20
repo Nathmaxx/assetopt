@@ -8,6 +8,8 @@ export { runPipeline } from './pipeline/pipeline.js';
 
 export { buildReport } from './analyzers/report.js';
 
+export { CACHE_FILE } from './cache/manifest.js';
+
 export {
   loadConfig,
   mergeConfig,
