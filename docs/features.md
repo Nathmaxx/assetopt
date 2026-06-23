@@ -23,7 +23,7 @@ assetopt processes four families of static assets, one well-known library per ty
 }
 ```
 
-**Notes**: `sharp` uses native `libvips` bindings — the fastest and most stable image-processing library in the Node ecosystem. Supported input formats: JPEG, PNG, WebP, AVIF. GIF is no longer supported (see `IDEAS.md` for the future Pro path).
+**Notes**: `sharp` uses native `libvips` bindings — the fastest and most stable image-processing library in the Node ecosystem. Supported input formats: JPEG, PNG, WebP, AVIF. GIF is no longer supported.
 
 **When to lower quality**: if you serve large photos (hero sections, lightboxes), dropping JPEG to 75-80 stays visually clean and shaves another 20-30% off the size.
 
@@ -246,7 +246,7 @@ Available on both `optimize` and `analyze`. The threshold compares the report's 
 - Detect a pipeline regression (e.g. a dependency that re-introduces EXIF metadata, a build that no longer pipes through assetopt).
 - On `analyze`, confirm in pre-build that there's still gain to extract before launching a costly optimize.
 
-**Note**: the threshold is _global_. For a _per-file_ threshold, you'll want the advanced CI/CD features in [Pro](./pro.md).
+**Note**: the threshold is _global_ — it gates total savings across the run, not individual files.
 
 ---
 

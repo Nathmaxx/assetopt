@@ -25,7 +25,7 @@ Why this works so well: the build has already wired up file paths and references
 }
 ```
 
-**Do not set `"preset": "web-perf"` here.** The preset converts file extensions (`jpeg → webp`, `png → avif`), and your built HTML still references the originals. Format conversion in this workflow requires a build plugin that rewrites imports — that's [an assetopt Pro feature](../pro.md#vite-plugin).
+**Do not set `"preset": "web-perf"` here.** The preset converts file extensions (`jpeg → webp`, `png → avif`), and your built HTML still references the originals. Format conversion in this workflow is unsafe unless something rewrites the imports in your build — which assetopt deliberately does not do. Stick to recompression with `outputFormat: 'keep'`.
 
 ## Step by step
 

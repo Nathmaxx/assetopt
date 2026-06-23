@@ -84,9 +84,9 @@ Note that `client-photo-01.jpg` was converted to `client-photo-01.webp` in `./pr
 
 2. **PNG smart routing surprise.** A transparent PNG goes to AVIF. AVIF has near-universal modern browser support (~95%), but if you need broader fallback (older Safari, embedded browsers), either:
    - Override the routing: `formatMatrix: { png: "webp" }` to force WebP.
-   - Plan to add a `<picture>` block with a PNG fallback. (Auto-injection of `<picture>` is [a Pro feature](../pro.md#automatic-picture--srcset--loadinglazy-injection), planned.)
+   - Plan to add a `<picture>` block with a PNG fallback, wired up by hand in your markup.
 
-3. **No responsive variants.** assetopt produces one optimized file per source. If you need `photo-320w.jpg`, `photo-640w.jpg`, `photo-1280w.jpg` for `srcset`, that's [the responsive rescale feature in Pro](../pro.md#responsive-variant-generation) (planned).
+3. **No responsive variants.** assetopt produces one optimized file per source. If you need `photo-320w.jpg`, `photo-640w.jpg`, `photo-1280w.jpg` for `srcset`, generate those widths separately (e.g. a dedicated sharp script) — assetopt does not rescale.
 
 4. **Iterating on quality settings invalidates the cache.** If you tweak `jpeg.quality` from 82 to 78 and re-run, every JPEG is reprocessed (correctly — the config changed). If you're testing many quality values rapidly, run with `--no-cache` and just compare outputs visually.
 

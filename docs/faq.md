@@ -37,14 +37,6 @@ You can — assetopt uses sharp internally. Three things you'd end up building y
 
 If your setup is one image, run sharp directly. If it's a folder you re-process regularly, you'd end up rewriting half of assetopt.
 
-### What's the difference between the free CLI and assetopt Pro?
-
-The free CLI optimizes a folder on demand. **Pro** is the integration layer: Vite/Next build plugins, a VS Code extension that optimizes on save, shareable HTML reports, responsive variant generation (multi-width images for `srcset`), automatic `<picture>` injection in built HTML, watch mode, parallel processing for very large projects, and CI bot comments on PRs. Pro is a paid one-shot purchase, lives in a separate repo, and depends on `@assetopt/core`.
-
-See [docs/pro.md](./pro.md) for the full overview.
-
----
-
 ## Integration
 
 ### Will my image references break?
@@ -67,7 +59,7 @@ Not with the defaults. `outputFormat: 'keep'` (the default) means every file kee
 
 ### Can I use assetopt with Next / Vite / Astro builds?
 
-Yes — run it on the build output (`dist/`, `.next/static/`, etc.) before you deploy. The free CLI doesn't hook into the build itself; that's what the build plugins in **Pro** are for. When running on built output, format conversion is unsafe (your bundler has already wired up references), so stick to recompression with `outputFormat: 'keep'` (the default).
+Yes — run it on the build output (`dist/`, `.next/static/`, etc.) before you deploy. assetopt doesn't hook into the build itself; it runs as a separate step on the built output. When running on built output, format conversion is unsafe (your bundler has already wired up references), so stick to recompression with `outputFormat: 'keep'` (the default).
 
 ### Can I call assetopt programmatically from Node.js?
 
@@ -111,7 +103,7 @@ The manifest lives in `<output.dir>/.assetopt-cache.json`. Deleting it invalidat
 
 No. GIF input was removed because lossy GIF → GIF recompression is uninteresting, and a proper GIF → animated WebP/AVIF pipeline needs a dedicated encoder (gifski or similar) that we didn't want to ship in the free MVP. Animated WebP and AVIF inputs are detected as static and only their first frame is processed — rarely what you want.
 
-Animation-aware optimization is a candidate for a future Pro feature (tracked in `IDEAS.md`).
+Animation-aware optimization isn't supported today; it may be considered for a future release.
 
 ---
 

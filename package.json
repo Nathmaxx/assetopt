@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Static asset optimization tool — open-source CLI with optional paid Pro extensions",
+  "description": "Static asset optimization tool — open-source CLI for images, CSS, JS and SVG",
   "license": "MIT",
   "author": "Nath",
   "engines": {
