@@ -4,6 +4,8 @@ A Node.js CLI for optimizing static assets — images, CSS, JS, and SVG. Open so
 
 assetopt scans a folder of assets, writes optimized versions to a separate output directory, and never touches your originals. An incremental cache means only changed files get reprocessed — first run is slow, every run after is near-instant.
 
+🌐 **[Landing page & live demo →](https://nathmaxx.github.io/assetopt-site/)** — overview, before/after gallery, and a downloadable demo pack to try assetopt yourself.
+
 ## Install
 
 ```bash
@@ -132,6 +134,7 @@ If an entry points to an output file that no longer exists (you cleared `./optim
 
 ## Documentation
 
+- [Landing page](https://nathmaxx.github.io/assetopt-site/) — project overview, before/after gallery, and a downloadable demo pack.
 - [CLI reference](./docs/cli.md) — every command, every flag, every exit code.
 - [Configuration reference](./docs/config.md) — every `.assetoptrc` field with type, default, and constraints.
 - [Feature catalog](./docs/features.md) — every feature with its config, behavior, and limits.

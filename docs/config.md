@@ -31,14 +31,14 @@ Every field is optional. The minimum viable config is `{}` — everything falls 
 
 ## Top-level fields
 
-| Field    | Type         | Default                                 | Description                                                                                     |
-| -------- | ------------ | --------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| `preset` | `"web-perf"` | _none_                                  | Apply a built-in config preset before merging the rest of your config. See [Presets](#presets). |
-| `images` | `object`     | `IMAGE_DEFAULTS`                        | Image optimization options. See [`images`](#images).                                            |
-| `css`    | `object`     | `{ minify: true }`                      | CSS optimization options. See [`css`](#css).                                                    |
-| `js`     | `object`     | `{ minify: true }`                      | JavaScript optimization options. See [`js`](#js).                                               |
-| `svg`    | `object`     | `{ multipass: true, minifyIds: false }` | SVG optimization options. See [`svg`](#svg).                                                    |
-| `output` | `object`     | `{ dir: "./optimized" }`                | Output settings. See [`output`](#output).                                                       |
+| Field    | Type          | Default                                 | Description                                                                                     |
+| -------- | ------------- | --------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `preset` | _preset name_ | _none_                                  | Apply a built-in config preset before merging the rest of your config. See [Presets](#presets). |
+| `images` | `object`      | `IMAGE_DEFAULTS`                        | Image optimization options. See [`images`](#images).                                            |
+| `css`    | `object`      | `{ minify: true }`                      | CSS optimization options. See [`css`](#css).                                                    |
+| `js`     | `object`      | `{ minify: true }`                      | JavaScript optimization options. See [`js`](#js).                                               |
+| `svg`    | `object`      | `{ multipass: true, minifyIds: false }` | SVG optimization options. See [`svg`](#svg).                                                    |
+| `output` | `object`      | `{ dir: "./optimized" }`                | Output settings. See [`output`](#output).                                                       |
 
 ---
 
@@ -46,21 +46,24 @@ Every field is optional. The minimum viable config is `{}` — everything falls 
 
 ### `preset`
 
-|                 |                                           |
-| --------------- | ----------------------------------------- |
-| **Type**        | `"web-perf"`                              |
-| **Default**     | _none_                                    |
-| **Constraints** | Must be one of the supported preset names |
+|                 |                                                                   |
+| --------------- | ----------------------------------------------------------------- |
+| **Type**        | `"web-perf" \| "max-compression" \| "quality" \| "compatibility"` |
+| **Default**     | _none_                                                            |
+| **Constraints** | Must be one of the supported preset names                         |
 
-Currently a single preset is shipped:
+Four presets are shipped:
 
 - **`web-perf`** — converts to modern formats automatically: `jpeg → webp`, `png → webp` (opaque) or `avif` (transparent), `webp` and `avif` left as-is. Implemented as a `formatMatrix` whose `png` entry is a function reading `hasAlpha` metadata.
+- **`max-compression`** — smallest payload: every format converges to AVIF (`avif` kept) at `quality.avif: 50`, metadata stripped, plus full SVG optimization (`multipass` + `minifyIds`).
+- **`quality`** — fidelity-first: every format kept (no lossy switch), re-encoded at a high quality floor (`jpeg/png/webp: 95`, `avif: 90`), metadata **preserved**.
+- **`compatibility`** — never produces a format more modern than the source: every format kept, re-compressed at default quality.
 
 ```json
 { "preset": "web-perf" }
 ```
 
-When set, the preset's config is layered on top of `DEFAULTS` and below your user config — see [Resolution order](#resolution-order).
+When set, the preset's config is layered on top of `DEFAULTS` and below your user config — see [Resolution order](#resolution-order). For the full per-preset routing table, see [features.md → Smart format conversion](./features.md#smart-format-conversion).
 
 ---
 
@@ -308,7 +311,7 @@ Common validation errors:
 | Out-of-range quality            | `Number must be greater than or equal to 1` / `less than or equal to 100`                                                                                     |
 | Unknown source format in `skip` | `Invalid enum value. Expected 'jpeg' \| 'png' \| 'webp' \| 'avif'`                                                                                            |
 | Unknown key in `formatMatrix`   | `Unrecognized key(s) in object: '...'` (strict object)                                                                                                        |
-| Unknown preset name             | `Invalid enum value. Expected 'web-perf'`                                                                                                                     |
+| Unknown preset name             | `Invalid enum value. Expected 'web-perf' \| 'max-compression' \| 'quality' \| 'compatibility'`                                                                |
 | Invalid global `outputFormat`   | `Invalid enum value. Expected 'keep' \| 'webp' \| 'avif'` (note: `'jpeg'` and `'png'` are intentionally not accepted globally — use `formatMatrix` for those) |
 
 All other top-level keys are tolerated silently (forward-compat with future fields). To get an explicit error on unknown root keys, run your config through your own validator first.

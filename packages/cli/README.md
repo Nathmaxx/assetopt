@@ -2,6 +2,8 @@
 
 Command-line tool to optimize images, CSS, JS and SVG assets — open source, MIT.
 
+🌐 **[Landing page & live demo →](https://nathmaxx.github.io/assetopt-site/)** — overview, before/after gallery, and a downloadable demo pack to try assetopt yourself.
+
 ## Install
 
 ```bash
@@ -39,6 +41,7 @@ Run `assetopt <command> --help` to see every flag and option.
 
 For workflows, configuration reference, and the full feature catalog, see the [project repository](https://github.com/Nathmaxx/assetopt#readme):
 
+- [Landing page](https://nathmaxx.github.io/assetopt-site/) — project overview, before/after gallery, and a downloadable demo pack
 - [Recommended workflows](https://github.com/Nathmaxx/assetopt/tree/main/docs/workflows) — three integration patterns (CI pre-deploy, hand-written static site, asset prep)
 - [CLI reference](https://github.com/Nathmaxx/assetopt/blob/main/docs/cli.md) — every command, flag, and exit code
 - [Configuration reference](https://github.com/Nathmaxx/assetopt/blob/main/docs/config.md) — every `.assetoptrc` field
