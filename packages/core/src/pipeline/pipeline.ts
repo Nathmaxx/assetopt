@@ -1,4 +1,5 @@
 import path from 'node:path';
+import { availableParallelism } from 'node:os';
 import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import {
@@ -9,6 +10,7 @@ import {
   getAssetType,
 } from '../utils/fs.js';
 import { computeSavedPercent } from '../utils/savings.js';
+import { mapWithConcurrency } from '../utils/concurrency.js';
 import { dispatch } from './dispatch.js';
 import {
   computeCacheKey,
@@ -71,10 +73,24 @@ function configForHash(config: AssetoptConfig): unknown {
   return rest;
 }
 
+// Product decision (ROADMAP P1.1): the free tier runs a bounded in-process
+// pool capped at 4. Sharp/esbuild/lightningcss do their work off the JS
+// thread, so this alone gives a near-linear win on big folders; uncapped
+// concurrency (and true worker threads) stays available as a Pro lever.
+const FREE_CONCURRENCY_CAP = 4;
+
+function resolveConcurrency(requested?: number): number {
+  if (requested === undefined)
+    return Math.max(1, Math.min(availableParallelism(), FREE_CONCURRENCY_CAP));
+  return Math.max(1, Math.min(Math.floor(requested), FREE_CONCURRENCY_CAP));
+}
+
 // Two sources can resolve to the same output path once format conversion
 // renames extensions (photo.jpg and photo.png both → photo.webp). Claiming
 // throws instead of letting the second write silently clobber the first;
 // the per-file error handling turns that into an errored AssetResult.
+// Check-and-set is synchronous, so concurrent tasks cannot both win — but
+// under concurrency "first" means first to claim, not first in scan order.
 function claimOutputPath(
   claimed: Map<string, string>,
   outputPath: string,
@@ -96,10 +112,13 @@ export async function runPipeline(
   options: {
     dryRun?: boolean;
     useCache?: boolean;
+    /** Max assets processed at once, clamped to 1–4 (default `min(cores, 4)`). */
+    concurrency?: number;
     onProgress?: (current: number, total: number, filePath: string) => void;
   } = {},
 ): Promise<AssetResult[]> {
   const { dryRun = false, useCache = true, onProgress } = options;
+  const concurrency = resolveConcurrency(options.concurrency);
   const outputDir = config.output?.dir ?? './optimized';
   const skip = new Set(config.images?.skip ?? []);
   const manifestPath = path.resolve(outputDir, CACHE_FILE);
@@ -114,17 +133,19 @@ export async function runPipeline(
     return sourceFormat === null || !skip.has(sourceFormat);
   });
 
-  const results: AssetResult[] = [];
   const claimedOutputs = new Map<string, string>();
 
-  for (let i = 0; i < files.length; i++) {
-    const filePath = files[i];
+  // Bounded pool: up to `concurrency` files in flight. The pool starts files
+  // in scan order (so onProgress stays monotonic) and returns results in scan
+  // order (indexed array) — only completions interleave. Shared state
+  // (manifest, claimedOutputs) is only touched synchronously, so no locking.
+  const settled = await mapWithConcurrency(files, concurrency, async (filePath, i) => {
     onProgress?.(i + 1, files.length, filePath);
 
     const start = Date.now();
     // scanDirectory only returns supported extensions, so this cannot be null.
     const assetType = getAssetType(filePath);
-    if (assetType === null) continue;
+    if (assetType === null) return null;
 
     let inputSize = 0;
     try {
@@ -139,7 +160,7 @@ export async function runPipeline(
           if (existsSync(absoluteOutputPath)) {
             claimOutputPath(claimedOutputs, absoluteOutputPath, filePath);
             const savedBytes = entry.inputSize - entry.outputSize;
-            results.push({
+            return {
               inputPath: filePath,
               outputPath: absoluteOutputPath,
               inputSize: entry.inputSize,
@@ -149,8 +170,7 @@ export async function runPipeline(
               assetType,
               durationMs: Date.now() - start,
               cached: true,
-            });
-            continue;
+            };
           }
         }
       }
@@ -178,7 +198,7 @@ export async function runPipeline(
 
       const savedBytes = dispatched.originalSize - dispatched.outputSize;
 
-      results.push({
+      return {
         inputPath: filePath,
         outputPath,
         inputSize: dispatched.originalSize,
@@ -188,11 +208,11 @@ export async function runPipeline(
         assetType: dispatched.assetType,
         durationMs: Date.now() - start,
         cached: false,
-      });
+      };
     } catch (err) {
       // One corrupt or conflicting file must not abort the whole run (nor
       // discard the manifest entries of files already processed).
-      results.push({
+      return {
         inputPath: filePath,
         outputPath: resolveOutputPath(filePath, inputDir, outputDir),
         inputSize,
@@ -203,9 +223,11 @@ export async function runPipeline(
         durationMs: Date.now() - start,
         cached: false,
         error: err instanceof Error ? err.message : String(err),
-      });
+      };
     }
-  }
+  });
+
+  const results = settled.filter((r): r is AssetResult => r !== null);
 
   if (useCache && !dryRun) {
     await writeManifest(manifestPath, manifest);

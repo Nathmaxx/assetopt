@@ -21,7 +21,7 @@ The CLI flags this in red in the per-file output, so a regression is visible at 
 
 ### Why is the first run so slow?
 
-Image processing is CPU-bound: sharp decodes, recompresses, and re-encodes every file in the set. On 100+ images, this takes a few seconds. Subsequent runs are near-instant because the cache marks unchanged files as `(cached)` and skips them. If your CI workspace is wiped between runs, persist `<output.dir>/.assetopt-cache.json` (or the entire output directory) across runs to keep build times low.
+Image processing is CPU-bound: sharp decodes, recompresses, and re-encodes every file in the set. Files are processed in parallel (up to 4 at once), but on 100+ images the first run still takes a few seconds. Subsequent runs are near-instant because the cache marks unchanged files as `(cached)` and skips them. If your CI workspace is wiped between runs, persist `<output.dir>/.assetopt-cache.json` (or the entire output directory) across runs to keep build times low.
 
 ---
 
