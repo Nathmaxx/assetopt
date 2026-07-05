@@ -126,6 +126,7 @@ describe('printReport', () => {
       totalSavedPercent: 50,
       durationMs: 12,
       cachedCount: 0,
+      errorCount: 0,
       ...overrides,
     };
   }
@@ -156,6 +157,20 @@ describe('printReport', () => {
     );
     expect(out).toContain('1 cached');
     expect(out).toContain('(cached)');
+  });
+
+  it('renders an error row and surfaces the failed count', () => {
+    const out = captureLog(() =>
+      printReport(
+        makeReport({
+          assets: [makeAsset(), makeAsset({ inputPath: '/a/broken.jpg', error: 'corrupt image' })],
+          errorCount: 1,
+        }),
+        'optimize',
+      ),
+    );
+    expect(out).toContain('✖ corrupt image');
+    expect(out).toContain('1 failed');
   });
 
   it('pluralizes the file count', () => {

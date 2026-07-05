@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+## [1.0.3] — 2026-07-05
+
+### Fixed
+
+- `assetopt --version` reported a hard-coded `1.0.0` regardless of the installed release. The CLI now resolves its version from its own `package.json` at runtime (same pattern `@assetopt/core` already used for cache keys).
+- Two sources resolving to the same output path after format conversion (e.g. `photo.jpg` and `photo.png` both converted to `photo.webp`) silently overwrote each other. The collision is now detected — the first source wins, the second is reported as a per-file error and nothing is clobbered.
+- A single corrupt or unprocessable file (invalid image, unparsable JS…) aborted the entire run **and** discarded the cache manifest, losing the work of every file already processed. The pipeline now records the failure on that asset and keeps going; the manifest is always written.
+- `optimize`, `analyze` and `audit` scanned `node_modules`, dot-directories (`.git`…) and the resolved `output.dir` as sources. All three are now excluded — in particular, a previous run's output is no longer re-optimized when `output.dir` lives inside the input directory (the default `optimize .` layout).
+
+### Added
+
+- Per-file error reporting: `AssetResult.error` and `OptimizeResult.errorCount` in `@assetopt/core`; failed assets are shown in the report (`✖` row, `N failed` in the summary, `error: …` issue in `audit --savings`), and `optimize`/`analyze` exit 1 when at least one asset failed (message on stderr, `--json` stdout stays pure).
+- `scanDirectory` now accepts `ScanOptions` (`recursive`, `excludePaths`), exported by `@assetopt/core`.
+
+### Changed
+
+- `scanDirectory(dir, recursive?)` signature changed to `scanDirectory(dir, options?: ScanOptions)`; `node_modules` and dot-directories are always skipped (filters apply to children only, so scanning a hidden directory directly still works).
+
+## [1.0.2] — 2026-07-04
+
+### Changed
+
+- `README.md` and `packages/cli/README.md` — point the landing-page link to the project's own domain `https://assetopt.tech` (previously `https://nathmaxx.github.io/assetopt-site/`).
+
 ## [1.0.1] — 2026-06-25
 
 ### Changed

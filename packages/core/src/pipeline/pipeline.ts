@@ -71,6 +71,25 @@ function configForHash(config: AssetoptConfig): unknown {
   return rest;
 }
 
+// Two sources can resolve to the same output path once format conversion
+// renames extensions (photo.jpg and photo.png both → photo.webp). Claiming
+// throws instead of letting the second write silently clobber the first;
+// the per-file error handling turns that into an errored AssetResult.
+function claimOutputPath(
+  claimed: Map<string, string>,
+  outputPath: string,
+  inputPath: string,
+): void {
+  const existing = claimed.get(outputPath);
+  if (existing !== undefined) {
+    throw new Error(
+      `output path collision: ${outputPath} is already produced by ${existing} — ` +
+        `rename one of the sources or adjust the format conversion`,
+    );
+  }
+  claimed.set(outputPath, inputPath);
+}
+
 export async function runPipeline(
   inputDir: string,
   config: AssetoptConfig = {},
@@ -87,77 +106,105 @@ export async function runPipeline(
   const hashableConfig = configForHash(config);
   const manifest: Manifest = useCache ? await readManifest(manifestPath) : {};
 
-  const allFiles = await scanDirectory(inputDir);
+  // Never re-scan our own output as a source (optimize . + output.dir inside
+  // the input dir would otherwise re-optimize the previous run's results).
+  const allFiles = await scanDirectory(inputDir, { excludePaths: [path.resolve(outputDir)] });
   const files = allFiles.filter((filePath) => {
     const sourceFormat = getImageSourceFormat(filePath);
     return sourceFormat === null || !skip.has(sourceFormat);
   });
 
   const results: AssetResult[] = [];
+  const claimedOutputs = new Map<string, string>();
 
   for (let i = 0; i < files.length; i++) {
     const filePath = files[i];
     onProgress?.(i + 1, files.length, filePath);
 
     const start = Date.now();
-    const buffer = await readBuffer(filePath);
-    const cacheKey = useCache ? computeCacheKey(buffer, hashableConfig, CORE_VERSION) : null;
+    // scanDirectory only returns supported extensions, so this cannot be null.
+    const assetType = getAssetType(filePath);
+    if (assetType === null) continue;
 
-    if (cacheKey !== null) {
-      const entry = manifest[cacheKey];
-      const assetType = getAssetType(filePath);
-      if (entry && assetType !== null) {
-        const absoluteOutputPath = path.resolve(outputDir, entry.outputPath);
-        if (existsSync(absoluteOutputPath)) {
-          const savedBytes = entry.inputSize - entry.outputSize;
-          results.push({
-            inputPath: filePath,
-            outputPath: absoluteOutputPath,
-            inputSize: entry.inputSize,
-            outputSize: entry.outputSize,
-            savedBytes,
-            savedPercent: computeSavedPercent(savedBytes, entry.inputSize),
-            assetType,
-            durationMs: Date.now() - start,
-            cached: true,
-          });
-          continue;
+    let inputSize = 0;
+    try {
+      const buffer = await readBuffer(filePath);
+      inputSize = buffer.length;
+      const cacheKey = useCache ? computeCacheKey(buffer, hashableConfig, CORE_VERSION) : null;
+
+      if (cacheKey !== null) {
+        const entry = manifest[cacheKey];
+        if (entry) {
+          const absoluteOutputPath = path.resolve(outputDir, entry.outputPath);
+          if (existsSync(absoluteOutputPath)) {
+            claimOutputPath(claimedOutputs, absoluteOutputPath, filePath);
+            const savedBytes = entry.inputSize - entry.outputSize;
+            results.push({
+              inputPath: filePath,
+              outputPath: absoluteOutputPath,
+              inputSize: entry.inputSize,
+              outputSize: entry.outputSize,
+              savedBytes,
+              savedPercent: computeSavedPercent(savedBytes, entry.inputSize),
+              assetType,
+              durationMs: Date.now() - start,
+              cached: true,
+            });
+            continue;
+          }
         }
       }
-    }
 
-    const dispatched = await dispatch(filePath, buffer, config);
-    const newExt = dispatched.assetType === 'image' ? FORMAT_TO_EXT[dispatched.format] : undefined;
+      const dispatched = await dispatch(filePath, buffer, config);
+      const newExt =
+        dispatched.assetType === 'image' ? FORMAT_TO_EXT[dispatched.format] : undefined;
 
-    const outputPath = resolveOutputPath(filePath, inputDir, outputDir, newExt);
+      const outputPath = resolveOutputPath(filePath, inputDir, outputDir, newExt);
+      claimOutputPath(claimedOutputs, outputPath, filePath);
 
-    if (!dryRun) {
-      await writeBuffer(outputPath, dispatched.buffer);
-    }
+      if (!dryRun) {
+        await writeBuffer(outputPath, dispatched.buffer);
+      }
 
-    if (cacheKey !== null && !dryRun) {
-      manifest[cacheKey] = {
+      if (cacheKey !== null && !dryRun) {
+        manifest[cacheKey] = {
+          inputSize: dispatched.originalSize,
+          outputSize: dispatched.outputSize,
+          outputPath: toPosixPath(path.relative(outputDir, outputPath)),
+          outputFormat: dispatched.assetType === 'image' ? dispatched.format : undefined,
+          timestamp: Date.now(),
+        };
+      }
+
+      const savedBytes = dispatched.originalSize - dispatched.outputSize;
+
+      results.push({
+        inputPath: filePath,
+        outputPath,
         inputSize: dispatched.originalSize,
         outputSize: dispatched.outputSize,
-        outputPath: toPosixPath(path.relative(outputDir, outputPath)),
-        outputFormat: dispatched.assetType === 'image' ? dispatched.format : undefined,
-        timestamp: Date.now(),
-      };
+        savedBytes,
+        savedPercent: computeSavedPercent(savedBytes, dispatched.originalSize),
+        assetType: dispatched.assetType,
+        durationMs: Date.now() - start,
+        cached: false,
+      });
+    } catch (err) {
+      // One corrupt or conflicting file must not abort the whole run (nor
+      // discard the manifest entries of files already processed).
+      results.push({
+        inputPath: filePath,
+        outputPath: resolveOutputPath(filePath, inputDir, outputDir),
+        inputSize,
+        outputSize: inputSize,
+        savedBytes: 0,
+        savedPercent: 0,
+        assetType,
+        durationMs: Date.now() - start,
+        cached: false,
+        error: err instanceof Error ? err.message : String(err),
+      });
     }
-
-    const savedBytes = dispatched.originalSize - dispatched.outputSize;
-
-    results.push({
-      inputPath: filePath,
-      outputPath,
-      inputSize: dispatched.originalSize,
-      outputSize: dispatched.outputSize,
-      savedBytes,
-      savedPercent: computeSavedPercent(savedBytes, dispatched.originalSize),
-      assetType: dispatched.assetType,
-      durationMs: Date.now() - start,
-      cached: false,
-    });
   }
 
   if (useCache && !dryRun) {

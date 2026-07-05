@@ -19,7 +19,7 @@ export {
 } from './config/loader.js';
 export { PRESETS } from './config/presets.js';
 
-export { scanDirectory, getAssetType, getFileSize } from './utils/fs.js';
+export { scanDirectory, getAssetType, getFileSize, type ScanOptions } from './utils/fs.js';
 
 export type {
   AssetType,

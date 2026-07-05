@@ -204,6 +204,18 @@ Typical use case: you already serve pre-optimized AVIFs and you want assetopt to
 
 ---
 
+## Resilient runs & scan exclusions
+
+**What you get**: one bad file never costs you the whole run, and assetopt never eats its own output.
+
+**Per-file errors**: if a file cannot be processed (corrupt image, unparsable JS…), the pipeline records the failure on that asset and keeps going. The report shows a `✖` row with the error message and a `N failed` counter; successful files — and the incremental cache manifest — are preserved. `optimize` and `analyze` exit 1 when at least one asset failed, so CI still catches it (the message goes to stderr, `--json` stdout stays parseable).
+
+**Collision safety**: when format conversion makes two sources resolve to the same output path (`photo.jpg` and `photo.png` both → `photo.webp`), the first one wins and the second is reported as a per-file error instead of silently overwriting the first.
+
+**Scan exclusions**: `node_modules`, dot-directories (`.git`, `.cache`…) and the resolved `output.dir` are always skipped when scanning sources. In particular, running `assetopt optimize .` with the default `output.dir: './optimized'` never re-optimizes the previous run's output.
+
+---
+
 ## `assetopt audit`
 
 **What you get**: a fast scan that tells you where the problems are in an asset folder, without modifying anything. Great for discovering an unfamiliar project, or for a quick check before a cleanup.

@@ -321,4 +321,130 @@ describe('runPipeline', () => {
       await rm(out, { recursive: true, force: true });
     });
   });
+
+  describe('per-file errors', () => {
+    let errInput: string;
+
+    beforeAll(async () => {
+      errInput = await mkdtemp(path.join(tmpdir(), 'assetopt-err-'));
+      await writeFile(path.join(errInput, 'broken.jpg'), Buffer.from('definitely not an image'));
+      await writeFile(path.join(errInput, 'style.css'), '.ok { color: red; }');
+    });
+
+    afterAll(async () => {
+      await rm(errInput, { recursive: true, force: true });
+    });
+
+    it('continues past a corrupt file and reports it with an error', async () => {
+      const out = await mkdtemp(path.join(tmpdir(), 'assetopt-err-out-'));
+      const results = await runPipeline(errInput, { output: { dir: out } });
+
+      expect(results).toHaveLength(2);
+      const broken = results.find((r) => r.inputPath.endsWith('broken.jpg'))!;
+      const css = results.find((r) => r.inputPath.endsWith('style.css'))!;
+      expect(broken.error).toBeDefined();
+      expect(broken.savedBytes).toBe(0);
+      expect(broken.cached).toBe(false);
+      expect(css.error).toBeUndefined();
+      await rm(out, { recursive: true, force: true });
+    });
+
+    it('does not write output for the failed file but writes the others', async () => {
+      const out = await mkdtemp(path.join(tmpdir(), 'assetopt-err-out-'));
+      await runPipeline(errInput, { output: { dir: out } });
+      expect(existsSync(path.join(out, 'broken.jpg'))).toBe(false);
+      expect(existsSync(path.join(out, 'style.css'))).toBe(true);
+      await rm(out, { recursive: true, force: true });
+    });
+
+    it('still writes the manifest so successful work is not lost', async () => {
+      const out = await mkdtemp(path.join(tmpdir(), 'assetopt-err-out-'));
+      await runPipeline(errInput, { output: { dir: out } });
+      expect(existsSync(path.join(out, '.assetopt-cache.json'))).toBe(true);
+      // Second run: the healthy file hits the cache, the broken one errors again.
+      const second = await runPipeline(errInput, { output: { dir: out } });
+      const css = second.find((r) => r.inputPath.endsWith('style.css'))!;
+      expect(css.cached).toBe(true);
+      await rm(out, { recursive: true, force: true });
+    });
+  });
+
+  describe('output path collisions', () => {
+    let collInput: string;
+
+    beforeAll(async () => {
+      collInput = await mkdtemp(path.join(tmpdir(), 'assetopt-coll-'));
+      const jpegBuffer = await sharp({
+        create: { width: 40, height: 40, channels: 3, background: { r: 10, g: 20, b: 30 } },
+      })
+        .jpeg()
+        .toBuffer();
+      const pngBuffer = await sharp({
+        create: {
+          width: 40,
+          height: 40,
+          channels: 4,
+          background: { r: 10, g: 20, b: 30, alpha: 1 },
+        },
+      })
+        .png()
+        .toBuffer();
+      // Same basename: both convert to photo.webp with outputFormat: 'webp'.
+      await writeFile(path.join(collInput, 'photo.jpg'), jpegBuffer);
+      await writeFile(path.join(collInput, 'photo.png'), pngBuffer);
+    });
+
+    afterAll(async () => {
+      await rm(collInput, { recursive: true, force: true });
+    });
+
+    it('reports the second source as an error instead of silently overwriting', async () => {
+      const out = await mkdtemp(path.join(tmpdir(), 'assetopt-coll-out-'));
+      const results = await runPipeline(collInput, {
+        images: { outputFormat: 'webp' },
+        output: { dir: out },
+      });
+
+      const errored = results.filter((r) => r.error !== undefined);
+      expect(errored).toHaveLength(1);
+      expect(errored[0].error).toContain('collision');
+      expect(results.filter((r) => r.error === undefined)).toHaveLength(1);
+      await rm(out, { recursive: true, force: true });
+    });
+
+    it('does not collide when formats stay distinct', async () => {
+      const out = await mkdtemp(path.join(tmpdir(), 'assetopt-coll-out-'));
+      const results = await runPipeline(collInput, { output: { dir: out } });
+      expect(results.every((r) => r.error === undefined)).toBe(true);
+      await rm(out, { recursive: true, force: true });
+    });
+  });
+
+  describe('scan exclusions', () => {
+    it('never re-scans the output directory as a source', async () => {
+      const localInput = await mkdtemp(path.join(tmpdir(), 'assetopt-selfscan-'));
+      await writeFile(path.join(localInput, 'top.css'), '.a { color: red; }');
+      // Output dir nested inside the input dir — the dangerous default layout.
+      const out = path.join(localInput, 'optimized');
+
+      const first = await runPipeline(localInput, { output: { dir: out } });
+      expect(first).toHaveLength(1);
+      const second = await runPipeline(localInput, { output: { dir: out } });
+      expect(second).toHaveLength(1);
+      expect(second[0].inputPath.endsWith('top.css')).toBe(true);
+      await rm(localInput, { recursive: true, force: true });
+    });
+
+    it('ignores node_modules inside the input directory', async () => {
+      const localInput = await mkdtemp(path.join(tmpdir(), 'assetopt-nm-'));
+      await writeFile(path.join(localInput, 'app.js'), 'const a = 1;');
+      await mkdir(path.join(localInput, 'node_modules', 'dep'), { recursive: true });
+      await writeFile(path.join(localInput, 'node_modules', 'dep', 'vendor.js'), 'var v = 2;');
+
+      const results = await runPipeline(localInput, {}, { dryRun: true });
+      expect(results).toHaveLength(1);
+      expect(results[0].inputPath.endsWith('app.js')).toBe(true);
+      await rm(localInput, { recursive: true, force: true });
+    });
+  });
 });

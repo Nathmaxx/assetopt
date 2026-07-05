@@ -25,6 +25,7 @@ function makeReport(overrides: Partial<OptimizeResult> = {}): OptimizeResult {
     totalSavedPercent: 30,
     durationMs: 5,
     cachedCount: 0,
+    errorCount: 0,
     ...overrides,
   };
 }
@@ -104,6 +105,28 @@ describe('optimize command', () => {
 
     await runOptimize(['--min-savings', '20']);
 
+    expect(exit).toHaveBeenCalledWith(1);
+  });
+
+  it('exits 1 when the report contains failed assets', async () => {
+    buildReportMock.mockReturnValue(makeReport({ errorCount: 2 }));
+    const exit = vi.spyOn(process, 'exit').mockImplementation((() => undefined) as never);
+
+    await runOptimize([]);
+
+    expect(exit).toHaveBeenCalledWith(1);
+    expect(console.error).toHaveBeenCalledWith(expect.stringContaining('2 assets failed'));
+  });
+
+  it('keeps JSON on stdout and the failure message on stderr with --json', async () => {
+    const report = makeReport({ errorCount: 1 });
+    buildReportMock.mockReturnValue(report);
+    const exit = vi.spyOn(process, 'exit').mockImplementation((() => undefined) as never);
+
+    await runOptimize(['--json']);
+
+    expect(console.log).toHaveBeenCalledOnce();
+    expect(console.log).toHaveBeenCalledWith(JSON.stringify(report, null, 2));
     expect(exit).toHaveBeenCalledWith(1);
   });
 

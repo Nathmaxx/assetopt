@@ -30,14 +30,49 @@ export function getImageSourceFormat(filePath: string): ImageSourceFormat | null
   return EXTENSION_TO_IMAGE_FORMAT[extname(filePath).toLowerCase()] ?? null;
 }
 
-export async function scanDirectory(dirPath: string, recursive = true): Promise<string[]> {
+export interface ScanOptions {
+  /** Recurse into subdirectories (default `true`). */
+  recursive?: boolean;
+  /**
+   * Directory paths to skip entirely (resolved to absolute before comparison).
+   * The pipeline passes its resolved `output.dir` here so a previous run's
+   * output is never re-scanned as a source.
+   */
+  excludePaths?: string[];
+}
+
+// Directories that are never sources of user assets, whatever the project.
+const ALWAYS_EXCLUDED_DIRS: ReadonlySet<string> = new Set(['node_modules']);
+
+/**
+ * Recursively list supported asset files under `dirPath`.
+ *
+ * Directories named `node_modules` and dot-directories (`.git`, `.cache`…)
+ * are always skipped; `options.excludePaths` skips additional directories
+ * (typically the resolved output dir). Filters apply to *children* only, so
+ * scanning a hidden directory directly still works.
+ */
+export async function scanDirectory(dirPath: string, options: ScanOptions = {}): Promise<string[]> {
+  const { recursive = true, excludePaths = [] } = options;
+  const excluded = new Set(excludePaths.map((p) => resolve(p)));
+  return scan(resolve(dirPath), recursive, excluded);
+}
+
+async function scan(
+  dirPath: string,
+  recursive: boolean,
+  excluded: ReadonlySet<string>,
+): Promise<string[]> {
   const entries = await readdir(dirPath, { withFileTypes: true });
   const files: string[] = [];
 
   for (const entry of entries) {
     const fullPath = resolve(dirPath, entry.name);
-    if (entry.isDirectory() && recursive) {
-      files.push(...(await scanDirectory(fullPath, recursive)));
+    if (entry.isDirectory()) {
+      if (!recursive) continue;
+      if (entry.name.startsWith('.') || ALWAYS_EXCLUDED_DIRS.has(entry.name)) continue;
+      if (excluded.has(fullPath)) continue;
+      files.push(...(await scan(fullPath, recursive, excluded)));
     } else if (entry.isFile() && getAssetType(fullPath) !== null) {
       files.push(fullPath);
     }

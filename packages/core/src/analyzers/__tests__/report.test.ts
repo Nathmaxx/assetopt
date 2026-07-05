@@ -89,4 +89,22 @@ describe('buildReport', () => {
     const result = buildReport([], 0);
     expect(result.cachedCount).toBe(0);
   });
+
+  it('counts assets with an error', () => {
+    const result = buildReport(
+      [makeAsset({ error: 'boom' }), makeAsset(), makeAsset({ error: 'collision' })],
+      0,
+    );
+    expect(result.errorCount).toBe(2);
+  });
+
+  it('errorCount is 0 when no asset failed', () => {
+    const result = buildReport([makeAsset(), makeAsset()], 0);
+    expect(result.errorCount).toBe(0);
+  });
+
+  it('errorCount is 0 on empty input', () => {
+    const result = buildReport([], 0);
+    expect(result.errorCount).toBe(0);
+  });
 });

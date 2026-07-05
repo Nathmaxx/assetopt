@@ -26,6 +26,11 @@ export function colorType(type: AssetType, padTo = 5): string {
 
 function formatAssetRow(asset: AssetResult): string {
   const name = basename(asset.inputPath).padEnd(30);
+
+  if (asset.error !== undefined) {
+    return `  ${colorType(asset.assetType)}  ${name}  ${pc.red(`✖ ${asset.error}`)}`;
+  }
+
   const inputStr = formatBytes(asset.inputSize).padStart(10);
   const outputStr = formatBytes(asset.outputSize).padStart(10);
   const savedStr =
@@ -97,11 +102,13 @@ export function printReport(report: OptimizeResult, mode: 'analyze' | 'optimize'
   }
   console.log('');
   const cachedStr = report.cachedCount > 0 ? ` · ${pc.dim(`${report.cachedCount} cached`)}` : '';
+  const failedStr =
+    report.errorCount > 0 ? ` · ${pc.red(pc.bold(`${report.errorCount} failed`))}` : '';
 
   console.log(
     `  ${pc.bold(count)} · ` +
       `${pc.dim(formatBytes(report.totalInputSize))} → ${pc.bold(formatBytes(report.totalOutputSize))} · ` +
-      `${verb} ${pc.bold(pc.green(savedStr))}${cachedStr} · ` +
+      `${verb} ${pc.bold(pc.green(savedStr))}${cachedStr}${failedStr} · ` +
       `${pc.dim(formatDuration(report.durationMs))}`,
   );
   console.log('');

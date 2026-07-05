@@ -35,11 +35,13 @@ export function registerAudit(program: Command): void {
         printConfigSource(source);
         console.log(`Auditing ${cwd}...`);
         const start = Date.now();
+        // Same exclusion as the pipeline: never audit our own output.
+        const outputDir = resolve(process.cwd(), config.output?.dir ?? './optimized');
 
         if (options.savings) {
           await runFullAudit(cwd, config, minSavings, start);
         } else {
-          await runFastAudit(cwd, start);
+          await runFastAudit(cwd, start, outputDir);
         }
       } catch (err) {
         handleCliError(err);
@@ -47,8 +49,8 @@ export function registerAudit(program: Command): void {
     });
 }
 
-async function runFastAudit(cwd: string, start: number): Promise<void> {
-  const files = await scanDirectory(cwd);
+async function runFastAudit(cwd: string, start: number, outputDir: string): Promise<void> {
+  const files = await scanDirectory(cwd, { excludePaths: [outputDir] });
 
   if (files.length === 0) {
     console.log(pc.yellow('No supported assets found.'));
@@ -92,6 +94,9 @@ async function runFullAudit(
     const issues: string[] = [];
     const threshold = SIZE_THRESHOLDS[asset.assetType];
 
+    if (asset.error !== undefined) {
+      issues.push(`error: ${asset.error}`);
+    }
     if (threshold !== undefined && asset.inputSize > threshold) {
       issues.push(`oversized (${formatBytes(asset.inputSize)} > ${formatBytes(threshold)})`);
     }

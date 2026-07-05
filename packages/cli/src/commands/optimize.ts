@@ -2,7 +2,7 @@ import { resolve } from 'node:path';
 import type { Command } from 'commander';
 import { loadConfig, runPipeline, buildReport } from '@assetopt/core';
 import { printReport, printProgress, clearProgress, printConfigSource } from '../utils/format.js';
-import { handleCliError } from '../utils/error.js';
+import { handleCliError, exitOnAssetErrors } from '../utils/error.js';
 import { enforceMinSavings } from '../utils/threshold.js';
 
 interface OptimizeCommandOptions {
@@ -47,6 +47,8 @@ export function registerOptimize(program: Command): void {
         } else {
           printReport(report, 'optimize');
         }
+
+        exitOnAssetErrors(report);
 
         if (options.minSavings !== undefined) {
           enforceMinSavings(report, options.minSavings);

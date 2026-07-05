@@ -5,10 +5,11 @@ import { registerAnalyze } from './commands/analyze.js';
 import { registerOptimize } from './commands/optimize.js';
 import { registerAudit } from './commands/audit.js';
 import { registerClean } from './commands/clean.js';
+import { findCliVersion } from './utils/version.js';
 
 const program = new Command();
 
-program.name('assetopt').description('Static asset optimization tool').version('1.0.0');
+program.name('assetopt').description('Static asset optimization tool').version(findCliVersion());
 
 registerInit(program);
 registerAnalyze(program);

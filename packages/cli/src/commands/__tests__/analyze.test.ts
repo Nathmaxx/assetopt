@@ -25,6 +25,7 @@ function makeReport(overrides: Partial<OptimizeResult> = {}): OptimizeResult {
     totalSavedPercent: 30,
     durationMs: 5,
     cachedCount: 0,
+    errorCount: 0,
     ...overrides,
   };
 }
@@ -94,6 +95,16 @@ describe('analyze command', () => {
     await runAnalyze(['--min-savings', '20']);
 
     expect(exit).toHaveBeenCalledWith(1);
+  });
+
+  it('exits 1 when the report contains failed assets', async () => {
+    buildReportMock.mockReturnValue(makeReport({ errorCount: 1 }));
+    const exit = vi.spyOn(process, 'exit').mockImplementation((() => undefined) as never);
+
+    await runAnalyze([]);
+
+    expect(exit).toHaveBeenCalledWith(1);
+    expect(console.error).toHaveBeenCalledWith(expect.stringContaining('1 asset failed'));
   });
 
   it('routes thrown errors through handleCliError (exit 1)', async () => {

@@ -24,6 +24,12 @@ export interface AssetResult {
   assetType: AssetType;
   durationMs: number;
   cached: boolean;
+  /**
+   * Set when this asset could not be processed (corrupt input, optimizer
+   * failure, output path collision…). The pipeline keeps going: the asset is
+   * reported with `savedBytes: 0` and nothing is written for it.
+   */
+  error?: string;
 }
 
 export interface OptimizeResult {
@@ -34,6 +40,8 @@ export interface OptimizeResult {
   totalSavedPercent: number;
   durationMs: number;
   cachedCount: number;
+  /** Number of assets whose processing failed (see {@link AssetResult.error}). */
+  errorCount: number;
 }
 
 export interface ImageQualityOptions {

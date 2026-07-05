@@ -84,9 +84,9 @@ assetopt analyze [dir] [-o, --output <dir>] [--json] [--min-savings <percent>] [
 
 ### Arguments
 
-| Argument | Default | Effect                               |
-| -------- | ------- | ------------------------------------ |
-| `dir`    | `.`     | Source directory to scan recursively |
+| Argument | Default | Effect                                                                                                                  |
+| -------- | ------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `dir`    | `.`     | Source directory to scan recursively (`node_modules`, dot-directories and the resolved `output.dir` are always skipped) |
 
 ### Options
 
@@ -99,10 +99,10 @@ assetopt analyze [dir] [-o, --output <dir>] [--json] [--min-savings <percent>] [
 
 ### Exit codes
 
-| Code | Condition                                                                         |
-| ---- | --------------------------------------------------------------------------------- |
-| `0`  | Analyze ran successfully and `--min-savings` (if set) was satisfied               |
-| `1`  | `--min-savings` threshold not met, invalid threshold value, or any pipeline error |
+| Code | Condition                                                                                                             |
+| ---- | --------------------------------------------------------------------------------------------------------------------- |
+| `0`  | Analyze ran successfully, no asset failed, and `--min-savings` (if set) was satisfied                                 |
+| `1`  | At least one asset failed to process, `--min-savings` threshold not met, invalid threshold value, or any global error |
 
 ### Examples
 
@@ -132,6 +132,7 @@ assetopt analyze ./public --json > savings.json
 - The output report has the same structure as `optimize`'s. The verb in the summary is `Would save` instead of `Saved`.
 - With `--json`, only valid JSON is written to stdout (the summary, progress bar, and config-source banner are suppressed) — safe for piping.
 - If no supported assets are found in `dir`, the command prints `No supported assets found.` and exits 0.
+- A file that cannot be processed (corrupt image, unparsable JS, output path collision…) does not abort the run: it appears as a `✖` row with the error message, the summary shows `N failed`, and the command exits 1 (message on stderr, so `--json` stdout stays parseable).
 
 ---
 
@@ -147,9 +148,9 @@ assetopt optimize [dir] [-o, --output <dir>] [--json] [--min-savings <percent>] 
 
 ### Arguments
 
-| Argument | Default | Effect                               |
-| -------- | ------- | ------------------------------------ |
-| `dir`    | `.`     | Source directory to scan recursively |
+| Argument | Default | Effect                                                                                                                  |
+| -------- | ------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `dir`    | `.`     | Source directory to scan recursively (`node_modules`, dot-directories and the resolved `output.dir` are always skipped) |
 
 ### Options
 
@@ -162,10 +163,10 @@ assetopt optimize [dir] [-o, --output <dir>] [--json] [--min-savings <percent>] 
 
 ### Exit codes
 
-| Code | Condition                                                                         |
-| ---- | --------------------------------------------------------------------------------- |
-| `0`  | Optimization ran successfully and `--min-savings` (if set) was satisfied          |
-| `1`  | `--min-savings` threshold not met, invalid threshold value, or any pipeline error |
+| Code | Condition                                                                                                             |
+| ---- | --------------------------------------------------------------------------------------------------------------------- |
+| `0`  | Optimization ran successfully, no asset failed, and `--min-savings` (if set) was satisfied                            |
+| `1`  | At least one asset failed to process, `--min-savings` threshold not met, invalid threshold value, or any global error |
 
 ### Examples
 
@@ -194,6 +195,8 @@ assetopt optimize dist --no-cache
 - The cache manifest lives at `<output.dir>/.assetopt-cache.json`. `--no-cache` neither reads nor writes it.
 - With `--json`, only valid JSON is written to stdout — safe for piping. The config-source banner and progress are normally on stderr-equivalent paths… in practice they're suppressed entirely when `--json` is set.
 - The report's `outputPath` reflects any extension change from format conversion (e.g. `photo.jpg` → `photo.webp` when `web-perf` is active). The `inputPath` always shows the original.
+- A file that cannot be processed does not abort the run: nothing is written for it, it appears as a `✖` row, successful files (and the cache manifest) are preserved, and the command exits 1.
+- If format conversion makes two sources resolve to the same output path (`photo.jpg` and `photo.png` both → `photo.webp`), the first one wins and the second is reported as a per-file error instead of silently overwriting the first.
 
 ---
 
@@ -209,9 +212,9 @@ assetopt audit [dir] [--savings] [--threshold <percent>]
 
 ### Arguments
 
-| Argument | Default | Effect                               |
-| -------- | ------- | ------------------------------------ |
-| `dir`    | `.`     | Source directory to scan recursively |
+| Argument | Default | Effect                                                                                                                  |
+| -------- | ------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `dir`    | `.`     | Source directory to scan recursively (`node_modules`, dot-directories and the resolved `output.dir` are always skipped) |
 
 ### Options
 
@@ -222,10 +225,10 @@ assetopt audit [dir] [--savings] [--threshold <percent>]
 
 ### Exit codes
 
-| Code | Condition                                                                               |
-| ---- | --------------------------------------------------------------------------------------- |
-| `0`  | No file flagged                                                                         |
-| `1`  | At least one file was flagged for any reason (oversized or above the savings threshold) |
+| Code | Condition                                                                                                         |
+| ---- | ----------------------------------------------------------------------------------------------------------------- |
+| `0`  | No file flagged                                                                                                   |
+| `1`  | At least one file was flagged for any reason (oversized, above the savings threshold, or failed with `--savings`) |
 
 ### Examples
 
@@ -251,7 +254,7 @@ assetopt audit ./public --savings --threshold 25
 | CSS        | 50 KB     |
 | SVG        | 50 KB     |
 
-**Full mode (`--savings`)**: runs the optimization pipeline as a dry-run. In addition to the size flag, files whose potential savings exceed `--threshold` are flagged with `would save X (-Y%)`. The cache is consulted to avoid re-processing unchanged files.
+**Full mode (`--savings`)**: runs the optimization pipeline as a dry-run. In addition to the size flag, files whose potential savings exceed `--threshold` are flagged with `would save X (-Y%)`, and files the pipeline could not process are flagged with `error: …`. The cache is consulted to avoid re-processing unchanged files.
 
 ### Notes
 
