@@ -224,6 +224,8 @@ Typical use case: you already serve pre-optimized AVIFs and you want assetopt to
 
 **Scan exclusions**: `node_modules`, dot-directories (`.git`, `.cache`…) and the resolved `output.dir` are always skipped when scanning sources. In particular, running `assetopt optimize .` with the default `output.dir: './optimized'` never re-optimizes the previous run's output.
 
+**User-defined targeting**: on top of the built-in exclusions, `input.include` / `input.exclude` in the config accept glob patterns (relative to the scanned directory), and `--exclude <glob>` (repeatable on `optimize`, `analyze` and `audit`) appends one-off excludes for a single run. Changing them never invalidates the cache of the remaining files. See [config → input](./config.md#input).
+
 ---
 
 ## `assetopt audit`

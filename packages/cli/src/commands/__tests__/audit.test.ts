@@ -137,4 +137,28 @@ describe('audit command', () => {
     expect(exit).toHaveBeenCalledWith(1);
     expect(console.error).toHaveBeenCalledWith(expect.stringContaining('disk error'));
   });
+
+  it('passes merged include/exclude globs to scanDirectory (fast path)', async () => {
+    loadConfigMock.mockResolvedValue({
+      config: { input: { include: ['**/*.png'], exclude: ['from-rc/**'] } },
+      source: null,
+    });
+    scanDirectoryMock.mockResolvedValue([]);
+
+    await runAudit(['--exclude', 'drafts/**']);
+
+    const scanOptions = scanDirectoryMock.mock.calls[0][1];
+    expect(scanOptions.include).toEqual(['**/*.png']);
+    expect(scanOptions.exclude).toEqual(['from-rc/**', 'drafts/**']);
+  });
+
+  it('passes merged excludes to the pipeline with --savings', async () => {
+    loadConfigMock.mockResolvedValue({ config: {}, source: null });
+    runPipelineMock.mockResolvedValue([]);
+
+    await runAudit(['--savings', '--exclude', 'drafts/**']);
+
+    const config = runPipelineMock.mock.calls[0][1];
+    expect(config.input.exclude).toEqual(['drafts/**']);
+  });
 });

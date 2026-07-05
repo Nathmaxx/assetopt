@@ -448,6 +448,47 @@ describe('runPipeline', () => {
     });
   });
 
+  describe('input include / exclude', () => {
+    it('config.input.exclude filters sources by glob', async () => {
+      const results = await runPipeline(
+        tmpInput,
+        { input: { exclude: ['**/*.svg'] } },
+        { dryRun: true },
+      );
+      expect(results).toHaveLength(3);
+      expect(results.some((r) => r.assetType === 'svg')).toBe(false);
+    });
+
+    it('config.input.include keeps only matching sources', async () => {
+      const results = await runPipeline(
+        tmpInput,
+        { input: { include: ['**/*.css'] } },
+        { dryRun: true },
+      );
+      expect(results.map((r) => r.assetType)).toEqual(['css']);
+    });
+
+    it('changing input.exclude does not invalidate the cache', async () => {
+      const dir = await mkdtemp(path.join(tmpdir(), 'assetopt-glob-cache-'));
+      await writeFile(path.join(dir, 'style.css'), '.k { color: green; }');
+      await writeFile(path.join(dir, 'app.js'), 'const k = 1;');
+      const out = await mkdtemp(path.join(tmpdir(), 'assetopt-glob-cache-out-'));
+
+      await runPipeline(dir, { output: { dir: out } });
+      // input selects files, it does not change their optimized bytes: the
+      // remaining file must still hit the cache.
+      const second = await runPipeline(dir, {
+        input: { exclude: ['**/*.js'] },
+        output: { dir: out },
+      });
+      expect(second).toHaveLength(1);
+      expect(second[0].cached).toBe(true);
+
+      await rm(dir, { recursive: true, force: true });
+      await rm(out, { recursive: true, force: true });
+    });
+  });
+
   describe('parallel execution', () => {
     it('returns results in the same order as a serial run', async () => {
       const serial = await runPipeline(tmpInput, {}, { dryRun: true, concurrency: 1 });

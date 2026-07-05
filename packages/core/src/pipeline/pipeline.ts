@@ -65,11 +65,12 @@ function resolveOutputPath(
   return path.resolve(outputDir, renamed);
 }
 
-// Cache key is derived from the full config minus output.dir, since the
-// output directory has no effect on content. Everything else (preset, matrix,
-// quality, skip…) influences the optimized bytes and must invalidate.
+// Cache key is derived from the full config minus output.dir and input
+// (include/exclude select *which* files run, not what their optimized bytes
+// look like). Everything else (preset, matrix, quality, skip…) influences
+// the optimized bytes and must invalidate.
 function configForHash(config: AssetoptConfig): unknown {
-  const { output: _output, ...rest } = config;
+  const { output: _output, input: _input, ...rest } = config;
   return rest;
 }
 
@@ -127,7 +128,11 @@ export async function runPipeline(
 
   // Never re-scan our own output as a source (optimize . + output.dir inside
   // the input dir would otherwise re-optimize the previous run's results).
-  const allFiles = await scanDirectory(inputDir, { excludePaths: [path.resolve(outputDir)] });
+  const allFiles = await scanDirectory(inputDir, {
+    excludePaths: [path.resolve(outputDir)],
+    include: config.input?.include,
+    exclude: config.input?.exclude,
+  });
   const files = allFiles.filter((filePath) => {
     const sourceFormat = getImageSourceFormat(filePath);
     return sourceFormat === null || !skip.has(sourceFormat);

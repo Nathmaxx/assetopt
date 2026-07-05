@@ -139,4 +139,23 @@ describe('optimize command', () => {
     expect(exit).toHaveBeenCalledWith(1);
     expect(console.error).toHaveBeenCalledWith(expect.stringContaining('boom'));
   });
+
+  it('appends --exclude globs to the config input.exclude', async () => {
+    loadConfigMock.mockResolvedValue({
+      config: { input: { exclude: ['from-rc/**'] } },
+      source: null,
+    });
+
+    await runOptimize(['--exclude', 'drafts/**', '--exclude', '**/*.min.js']);
+
+    const config = runPipelineMock.mock.calls[0][1];
+    expect(config.input.exclude).toEqual(['from-rc/**', 'drafts/**', '**/*.min.js']);
+  });
+
+  it('leaves config.input untouched without --exclude', async () => {
+    await runOptimize([]);
+
+    const config = runPipelineMock.mock.calls[0][1];
+    expect(config.input).toBeUndefined();
+  });
 });

@@ -116,4 +116,16 @@ describe('analyze command', () => {
     expect(exit).toHaveBeenCalledWith(1);
     expect(console.error).toHaveBeenCalledWith(expect.stringContaining('scan failed'));
   });
+
+  it('appends --exclude globs to the config input.exclude', async () => {
+    loadConfigMock.mockResolvedValue({
+      config: { input: { exclude: ['from-rc/**'] } },
+      source: null,
+    });
+
+    await runAnalyze(['--exclude', 'drafts/**']);
+
+    const config = runPipelineMock.mock.calls[0][1];
+    expect(config.input.exclude).toEqual(['from-rc/**', 'drafts/**']);
+  });
 });

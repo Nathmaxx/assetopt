@@ -4,12 +4,14 @@ import { loadConfig, runPipeline, buildReport } from '@assetopt/core';
 import { printReport, printProgress, clearProgress, printConfigSource } from '../utils/format.js';
 import { handleCliError, exitOnAssetErrors } from '../utils/error.js';
 import { enforceMinSavings } from '../utils/threshold.js';
+import { applyCliOverrides, collect } from '../utils/config.js';
 
 interface AnalyzeCommandOptions {
   json?: boolean;
   minSavings?: string;
   cache?: boolean;
   output?: string;
+  exclude: string[];
 }
 
 export function registerAnalyze(program: Command): void {
@@ -20,6 +22,12 @@ export function registerAnalyze(program: Command): void {
       '-o, --output <dir>',
       'output directory used for cache lookup (overrides output.dir from config)',
     )
+    .option(
+      '--exclude <glob>',
+      'skip files matching this glob (repeatable, adds to config)',
+      collect,
+      [],
+    )
     .option('--json', 'output report as JSON instead of terminal format')
     .option('--min-savings <percent>', 'fail (exit 1) if total savings are below this percent')
     .option('--no-cache', 'bypass the incremental cache (re-analyze every asset from scratch)')
@@ -28,9 +36,7 @@ export function registerAnalyze(program: Command): void {
 
       try {
         const { config, source } = await loadConfig();
-        const effectiveConfig = options.output
-          ? { ...config, output: { ...config.output, dir: resolve(process.cwd(), options.output) } }
-          : config;
+        const effectiveConfig = applyCliOverrides(config, options);
 
         if (!options.json) {
           printConfigSource(source);

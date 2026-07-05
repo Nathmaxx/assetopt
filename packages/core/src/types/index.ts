@@ -113,6 +113,17 @@ export type DispatchResult =
 
 export interface AssetoptConfig {
   preset?: PresetName;
+  /**
+   * Source selection. Globs are matched against the path *relative to the
+   * scanned directory*, with posix separators (e.g. `drafts/**`, `*.min.js`).
+   * `include` keeps only matching files (when non-empty); `exclude` then
+   * removes matches. Neither affects the optimized bytes, so changing them
+   * never invalidates the cache.
+   */
+  input?: {
+    include?: string[];
+    exclude?: string[];
+  };
   images?: ImageOptimizeOptions;
   css?: CssOptimizeOptions;
   js?: JsOptimizeOptions;
