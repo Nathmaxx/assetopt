@@ -1,5 +1,6 @@
 import { readdir, stat, readFile, writeFile, mkdir } from 'node:fs/promises';
-import { extname, resolve, dirname } from 'node:path';
+import { extname, resolve, dirname, relative, sep } from 'node:path';
+import picomatch from 'picomatch';
 import type { AssetType, ImageSourceFormat } from '../types/index.js';
 
 const EXTENSION_TO_TYPE: Record<string, AssetType> = {
@@ -39,6 +40,18 @@ export interface ScanOptions {
    * output is never re-scanned as a source.
    */
   excludePaths?: string[];
+  /**
+   * Glob patterns matched against each file's path *relative to the scanned
+   * directory* (posix separators, dotfiles matchable). When non-empty, only
+   * matching files are kept. Typically `config.input.include`.
+   */
+  include?: string[];
+  /**
+   * Glob patterns (same matching rules as `include`); a file matching any
+   * pattern is skipped, after `include` is applied. Typically
+   * `config.input.exclude` merged with the CLI `--exclude` flags.
+   */
+  exclude?: string[];
 }
 
 // Directories that are never sources of user assets, whatever the project.
@@ -53,15 +66,31 @@ const ALWAYS_EXCLUDED_DIRS: ReadonlySet<string> = new Set(['node_modules']);
  * scanning a hidden directory directly still works.
  */
 export async function scanDirectory(dirPath: string, options: ScanOptions = {}): Promise<string[]> {
-  const { recursive = true, excludePaths = [] } = options;
+  const { recursive = true, excludePaths = [], include = [], exclude = [] } = options;
   const excluded = new Set(excludePaths.map((p) => resolve(p)));
-  return scan(resolve(dirPath), recursive, excluded);
+  const root = resolve(dirPath);
+
+  // dot: true so `**/*.css` also matches `.hidden.css` — dot-*directories*
+  // are pruned during the walk anyway, this only concerns dotfiles.
+  const isIncluded = include.length > 0 ? picomatch(include, { dot: true }) : null;
+  const isExcluded = exclude.length > 0 ? picomatch(exclude, { dot: true }) : null;
+  const keep =
+    isIncluded === null && isExcluded === null
+      ? null
+      : (fullPath: string): boolean => {
+          const rel = relative(root, fullPath).split(sep).join('/');
+          if (isIncluded !== null && !isIncluded(rel)) return false;
+          return isExcluded === null || !isExcluded(rel);
+        };
+
+  return scan(root, recursive, excluded, keep);
 }
 
 async function scan(
   dirPath: string,
   recursive: boolean,
   excluded: ReadonlySet<string>,
+  keep: ((fullPath: string) => boolean) | null,
 ): Promise<string[]> {
   const entries = await readdir(dirPath, { withFileTypes: true });
   const files: string[] = [];
@@ -72,8 +101,9 @@ async function scan(
       if (!recursive) continue;
       if (entry.name.startsWith('.') || ALWAYS_EXCLUDED_DIRS.has(entry.name)) continue;
       if (excluded.has(fullPath)) continue;
-      files.push(...(await scan(fullPath, recursive, excluded)));
+      files.push(...(await scan(fullPath, recursive, excluded, keep)));
     } else if (entry.isFile() && getAssetType(fullPath) !== null) {
+      if (keep !== null && !keep(fullPath)) continue;
       files.push(fullPath);
     }
   }

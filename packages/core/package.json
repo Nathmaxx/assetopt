@@ -1,6 +1,6 @@
 {
   "name": "@assetopt/core",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "Pure asset optimization functions for images (sharp), CSS (lightningcss), JS (esbuild), and SVG (svgo). Core engine behind the assetopt CLI.",
   "license": "MIT",
   "author": "Nath",
@@ -52,11 +52,13 @@
   "dependencies": {
     "esbuild": "^0.28.1",
     "lightningcss": "^1.28.0",
+    "picomatch": "^4.0.5",
     "sharp": "^0.33.0",
     "svgo": "^3.3.0",
     "zod": "^3.24.0"
   },
   "devDependencies": {
+    "@types/picomatch": "^4.0.3",
     "tsup": "^8.0.0"
   }
 }

@@ -158,6 +158,16 @@ await optimizeImage(buf, {
 
 ---
 
+## Parallel processing
+
+**What you get**: assets are processed concurrently — up to 4 files in flight at once (bounded by your CPU count). On image-heavy folders this is a near-linear speedup (~3.6× measured on a folder of 24 photos, 4 cores). Nothing to enable, nothing to configure.
+
+**How it works**: a bounded in-process pool. Sharp, esbuild and lightningcss already do their heavy lifting off the JavaScript thread, so running several files at once uses your cores without worker threads or extra dependencies. Report order, progress display and cache behavior are identical to a sequential run.
+
+**One edge case**: when two sources collide on the same output path (see [Collision safety](#resilient-runs--scan-exclusions)), which of the two "wins" is no longer guaranteed to be scan order — but the collision is still detected and reported as a per-file error either way.
+
+---
+
 ## Incremental cache
 
 **What you get**: re-run `assetopt optimize` as often as you want — only new or modified files are reprocessed. First run is slow, every run after is near-instant. No config to enable.
@@ -213,6 +223,8 @@ Typical use case: you already serve pre-optimized AVIFs and you want assetopt to
 **Collision safety**: when format conversion makes two sources resolve to the same output path (`photo.jpg` and `photo.png` both → `photo.webp`), the first one wins and the second is reported as a per-file error instead of silently overwriting the first.
 
 **Scan exclusions**: `node_modules`, dot-directories (`.git`, `.cache`…) and the resolved `output.dir` are always skipped when scanning sources. In particular, running `assetopt optimize .` with the default `output.dir: './optimized'` never re-optimizes the previous run's output.
+
+**User-defined targeting**: on top of the built-in exclusions, `input.include` / `input.exclude` in the config accept glob patterns (relative to the scanned directory), and `--exclude <glob>` (repeatable on `optimize`, `analyze` and `audit`) appends one-off excludes for a single run. Changing them never invalidates the cache of the remaining files. See [config → input](./config.md#input).
 
 ---
 

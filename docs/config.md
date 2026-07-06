@@ -34,6 +34,7 @@ Every field is optional. The minimum viable config is `{}` — everything falls 
 | Field    | Type          | Default                                 | Description                                                                                     |
 | -------- | ------------- | --------------------------------------- | ----------------------------------------------------------------------------------------------- |
 | `preset` | _preset name_ | _none_                                  | Apply a built-in config preset before merging the rest of your config. See [Presets](#presets). |
+| `input`  | `object`      | _none_                                  | Source selection globs (`include` / `exclude`). See [`input`](#input).                          |
 | `images` | `object`      | `IMAGE_DEFAULTS`                        | Image optimization options. See [`images`](#images).                                            |
 | `css`    | `object`      | `{ minify: true }`                      | CSS optimization options. See [`css`](#css).                                                    |
 | `js`     | `object`      | `{ minify: true }`                      | JavaScript optimization options. See [`js`](#js).                                               |
@@ -64,6 +65,37 @@ Four presets are shipped:
 ```
 
 When set, the preset's config is layered on top of `DEFAULTS` and below your user config — see [Resolution order](#resolution-order). For the full per-preset routing table, see [features.md → Smart format conversion](./features.md#smart-format-conversion).
+
+---
+
+## `input`
+
+### `input.include` / `input.exclude`
+
+|             |            |
+| ----------- | ---------- |
+| **Type**    | `string[]` |
+| **Default** | _none_     |
+
+Glob patterns controlling which source files are processed. Matched against each file's path **relative to the scanned directory**, with posix separators (`/`), dotfiles matchable. Powered by [picomatch](https://github.com/micromatch/picomatch) — standard glob syntax (`*`, `**`, `?`, `{a,b}`, `[…]`).
+
+- `include` — when non-empty, **only** matching files are kept.
+- `exclude` — matching files are skipped, applied **after** `include`.
+
+```json
+{
+  "input": {
+    "include": ["**/*.{jpg,png,webp}", "**/*.css"],
+    "exclude": ["drafts/**", "**/*.min.js"]
+  }
+}
+```
+
+**CLI**: `--exclude <glob>` (repeatable) appends to `input.exclude` for a single run — see [CLI reference](./cli.md). There is no `--include` flag; `include` lives in the config only.
+
+**Interaction with built-in exclusions**: `node_modules`, dot-directories and the resolved `output.dir` are always skipped, before these globs apply. See [features.md → Resilient runs & scan exclusions](./features.md#resilient-runs--scan-exclusions).
+
+**Cache**: `input` selects _which_ files run — it does not affect their optimized bytes, so changing it never invalidates the cache of the remaining files.
 
 ---
 

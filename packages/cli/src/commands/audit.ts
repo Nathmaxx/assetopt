@@ -12,6 +12,7 @@ import {
   printConfigSource,
 } from '../utils/format.js';
 import { handleCliError } from '../utils/error.js';
+import { applyCliOverrides, collect } from '../utils/config.js';
 
 const SIZE_THRESHOLDS: Partial<Record<AssetType, number>> = {
   image: 500 * 1024,
@@ -26,31 +27,52 @@ export function registerAudit(program: Command): void {
     .description('Identify problematic assets with optimization recommendations')
     .option('--threshold <percent>', 'minimum savings % to flag a file (requires --savings)', '10')
     .option('--savings', 'compute potential savings for each file (slower)')
-    .action(async (dir: string = '.', options: { threshold: string; savings?: boolean }) => {
-      const cwd = resolve(process.cwd(), dir);
-      const minSavings = parseFloat(options.threshold);
+    .option(
+      '--exclude <glob>',
+      'skip files matching this glob (repeatable, adds to config)',
+      collect,
+      [],
+    )
+    .action(
+      async (
+        dir: string = '.',
+        options: { threshold: string; savings?: boolean; exclude: string[] },
+      ) => {
+        const cwd = resolve(process.cwd(), dir);
+        const minSavings = parseFloat(options.threshold);
 
-      try {
-        const { config, source } = await loadConfig();
-        printConfigSource(source);
-        console.log(`Auditing ${cwd}...`);
-        const start = Date.now();
-        // Same exclusion as the pipeline: never audit our own output.
-        const outputDir = resolve(process.cwd(), config.output?.dir ?? './optimized');
+        try {
+          const { config, source } = await loadConfig();
+          const effectiveConfig = applyCliOverrides(config, options);
+          printConfigSource(source);
+          console.log(`Auditing ${cwd}...`);
+          const start = Date.now();
+          // Same exclusion as the pipeline: never audit our own output.
+          const outputDir = resolve(process.cwd(), effectiveConfig.output?.dir ?? './optimized');
 
-        if (options.savings) {
-          await runFullAudit(cwd, config, minSavings, start);
-        } else {
-          await runFastAudit(cwd, start, outputDir);
+          if (options.savings) {
+            await runFullAudit(cwd, effectiveConfig, minSavings, start);
+          } else {
+            await runFastAudit(cwd, effectiveConfig, start, outputDir);
+          }
+        } catch (err) {
+          handleCliError(err);
         }
-      } catch (err) {
-        handleCliError(err);
-      }
-    });
+      },
+    );
 }
 
-async function runFastAudit(cwd: string, start: number, outputDir: string): Promise<void> {
-  const files = await scanDirectory(cwd, { excludePaths: [outputDir] });
+async function runFastAudit(
+  cwd: string,
+  config: AssetoptConfig,
+  start: number,
+  outputDir: string,
+): Promise<void> {
+  const files = await scanDirectory(cwd, {
+    excludePaths: [outputDir],
+    include: config.input?.include,
+    exclude: config.input?.exclude,
+  });
 
   if (files.length === 0) {
     console.log(pc.yellow('No supported assets found.'));

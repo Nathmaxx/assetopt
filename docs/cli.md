@@ -79,7 +79,7 @@ Analyze assets and report potential savings without modifying any files (dry-run
 ### Signature
 
 ```
-assetopt analyze [dir] [-o, --output <dir>] [--json] [--min-savings <percent>] [--no-cache]
+assetopt analyze [dir] [-o, --output <dir>] [--exclude <glob>]... [--json] [--min-savings <percent>] [--no-cache]
 ```
 
 ### Arguments
@@ -90,12 +90,13 @@ assetopt analyze [dir] [-o, --output <dir>] [--json] [--min-savings <percent>] [
 
 ### Options
 
-| Option                    | Default                     | Effect                                                                                                              |
-| ------------------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `-o, --output <dir>`      | from config (`./optimized`) | Override `output.dir` from config — used here for cache lookup                                                      |
-| `--json`                  | _off_                       | Output the report as JSON on stdout. Suppresses the colored summary, the progress bar, and the config-source banner |
-| `--min-savings <percent>` | _off_                       | Fail with exit code 1 if total savings are below this percent. Value must be a finite number between 0 and 100      |
-| `--no-cache`              | _off_                       | Bypass the incremental cache (read every asset from scratch)                                                        |
+| Option                    | Default                     | Effect                                                                                                                        |
+| ------------------------- | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `-o, --output <dir>`      | from config (`./optimized`) | Override `output.dir` from config — used here for cache lookup                                                                |
+| `--exclude <glob>`        | _none_                      | Skip files matching this glob (repeatable). Appended to `input.exclude` from config — see [config → input](./config.md#input) |
+| `--json`                  | _off_                       | Output the report as JSON on stdout. Suppresses the colored summary, the progress bar, and the config-source banner           |
+| `--min-savings <percent>` | _off_                       | Fail with exit code 1 if total savings are below this percent. Value must be a finite number between 0 and 100                |
+| `--no-cache`              | _off_                       | Bypass the incremental cache (read every asset from scratch)                                                                  |
 
 ### Exit codes
 
@@ -143,7 +144,7 @@ Optimize assets and write the results to the output directory.
 ### Signature
 
 ```
-assetopt optimize [dir] [-o, --output <dir>] [--json] [--min-savings <percent>] [--no-cache]
+assetopt optimize [dir] [-o, --output <dir>] [--exclude <glob>]... [--json] [--min-savings <percent>] [--no-cache]
 ```
 
 ### Arguments
@@ -154,12 +155,13 @@ assetopt optimize [dir] [-o, --output <dir>] [--json] [--min-savings <percent>] 
 
 ### Options
 
-| Option                    | Default                     | Effect                                                                                                              |
-| ------------------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `-o, --output <dir>`      | from config (`./optimized`) | Override `output.dir` from config for this run                                                                      |
-| `--json`                  | _off_                       | Output the report as JSON on stdout. Suppresses the colored summary, the progress bar, and the config-source banner |
-| `--min-savings <percent>` | _off_                       | Fail with exit code 1 if total savings are below this percent. Value must be a finite number between 0 and 100      |
-| `--no-cache`              | _off_                       | Bypass the incremental cache (force re-processing of every asset, do not write the manifest)                        |
+| Option                    | Default                     | Effect                                                                                                                        |
+| ------------------------- | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `-o, --output <dir>`      | from config (`./optimized`) | Override `output.dir` from config for this run                                                                                |
+| `--exclude <glob>`        | _none_                      | Skip files matching this glob (repeatable). Appended to `input.exclude` from config — see [config → input](./config.md#input) |
+| `--json`                  | _off_                       | Output the report as JSON on stdout. Suppresses the colored summary, the progress bar, and the config-source banner           |
+| `--min-savings <percent>` | _off_                       | Fail with exit code 1 if total savings are below this percent. Value must be a finite number between 0 and 100                |
+| `--no-cache`              | _off_                       | Bypass the incremental cache (force re-processing of every asset, do not write the manifest)                                  |
 
 ### Exit codes
 
@@ -188,6 +190,9 @@ assetopt optimize dist --json > report.json
 
 # Bypass the cache (reproduce a "first run")
 assetopt optimize dist --no-cache
+
+# Skip drafts and already-minified bundles
+assetopt optimize ./public --exclude "drafts/**" --exclude "**/*.min.js"
 ```
 
 ### Notes
@@ -207,7 +212,7 @@ Scan a folder and flag problematic assets (oversized, optimization potential), w
 ### Signature
 
 ```
-assetopt audit [dir] [--savings] [--threshold <percent>]
+assetopt audit [dir] [--savings] [--threshold <percent>] [--exclude <glob>]...
 ```
 
 ### Arguments
@@ -222,6 +227,7 @@ assetopt audit [dir] [--savings] [--threshold <percent>]
 | ----------------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `--savings`             | _off_   | Run a full pipeline dry-run to compute potential savings per file. Flags files where savings would exceed `--threshold`. Slower than the default mode |
 | `--threshold <percent>` | `10`    | Minimum savings percent to flag a file. Only meaningful with `--savings`                                                                              |
+| `--exclude <glob>`      | _none_  | Skip files matching this glob (repeatable). Appended to `input.exclude` from config — see [config → input](./config.md#input)                         |
 
 ### Exit codes
 

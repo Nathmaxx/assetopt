@@ -136,6 +136,21 @@ describe('loadConfig', () => {
     expect(result.config.images?.formatMatrix?.jpeg).toBe('webp');
   });
 
+  it('accepts an input block with include/exclude globs', async () => {
+    await writeFile(
+      join(tmpDir, '.assetoptrc'),
+      JSON.stringify({ input: { include: ['**/*.png'], exclude: ['drafts/**'] } }),
+    );
+    const result = await loadConfig(tmpDir);
+    expect(result.config.input?.include).toEqual(['**/*.png']);
+    expect(result.config.input?.exclude).toEqual(['drafts/**']);
+  });
+
+  it('throws when input.exclude is not an array of strings', async () => {
+    await writeFile(join(tmpDir, '.assetoptrc'), JSON.stringify({ input: { exclude: 'drafts' } }));
+    await expect(loadConfig(tmpDir)).rejects.toThrow(/Invalid /);
+  });
+
   it('throws on malformed JSON', async () => {
     await writeFile(join(tmpDir, '.assetoptrc'), '{ malformed json');
     await expect(loadConfig(tmpDir)).rejects.toThrow(/Invalid /);

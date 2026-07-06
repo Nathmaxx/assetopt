@@ -48,6 +48,12 @@ const svgOptionsSchema = z.object({
 
 export const configSchema = z.object({
   preset: z.enum(PRESET_NAMES).optional(),
+  input: z
+    .object({
+      include: z.array(z.string()).optional(),
+      exclude: z.array(z.string()).optional(),
+    })
+    .optional(),
   images: imageOptionsSchema.optional(),
   css: cssOptionsSchema.optional(),
   js: jsOptionsSchema.optional(),

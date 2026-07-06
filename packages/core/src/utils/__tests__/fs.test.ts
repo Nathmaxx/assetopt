@@ -14,6 +14,7 @@ beforeAll(async () => {
 
   await mkdir(path.join(root, 'sub'), { recursive: true });
   await writeFile(path.join(root, 'sub', 'nested.js'), 'const x = 1;');
+  await writeFile(path.join(root, 'sub', 'photo.png'), 'png-bytes');
 
   await mkdir(path.join(root, 'node_modules', 'pkg'), { recursive: true });
   await writeFile(path.join(root, 'node_modules', 'pkg', 'vendor.css'), '.v {}');
@@ -71,5 +72,48 @@ describe('scanDirectory', () => {
   it('scans a dot-directory when it is the scan root itself', async () => {
     const files = await scanDirectory(path.join(root, '.hidden'));
     expect(files.map((f) => path.basename(f))).toEqual(['secret.css']);
+  });
+
+  describe('glob include / exclude', () => {
+    it('excludes files matching an extension glob', async () => {
+      const files = await scanDirectory(root, { exclude: ['**/*.css'] });
+      expect(files.some((f) => f.endsWith('.css'))).toBe(false);
+      expect(names(files)).toContain(path.join('sub', 'nested.js'));
+    });
+
+    it('excludes a whole directory by glob', async () => {
+      const files = await scanDirectory(root, { exclude: ['sub/**'] });
+      expect(files.some((f) => f.includes(`${path.sep}sub${path.sep}`))).toBe(false);
+      expect(names(files)).toContain('top.css');
+    });
+
+    it('keeps only files matching include', async () => {
+      const files = await scanDirectory(root, { include: ['**/*.css'] });
+      expect(files.length).toBeGreaterThan(0);
+      expect(files.every((f) => f.endsWith('.css'))).toBe(true);
+    });
+
+    it('applies exclude after include', async () => {
+      const files = await scanDirectory(root, {
+        include: ['**/*.css'],
+        exclude: ['optimized/**'],
+      });
+      expect(names(files)).toEqual(['top.css']);
+    });
+
+    it('matches patterns relative to the scan root', async () => {
+      // 'photo.png' exists only at sub/photo.png: a root-level pattern
+      // without '**' must not match it.
+      const files = await scanDirectory(root, { exclude: ['photo.png'] });
+      expect(names(files)).toContain(path.join('sub', 'photo.png'));
+      const filtered = await scanDirectory(root, { exclude: ['sub/photo.png'] });
+      expect(names(filtered)).not.toContain(path.join('sub', 'photo.png'));
+    });
+
+    it('empty glob arrays disable filtering', async () => {
+      const all = await scanDirectory(root);
+      const same = await scanDirectory(root, { include: [], exclude: [] });
+      expect(names(same)).toEqual(names(all));
+    });
   });
 });

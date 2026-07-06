@@ -447,4 +447,126 @@ describe('runPipeline', () => {
       await rm(localInput, { recursive: true, force: true });
     });
   });
+
+  describe('input include / exclude', () => {
+    it('config.input.exclude filters sources by glob', async () => {
+      const results = await runPipeline(
+        tmpInput,
+        { input: { exclude: ['**/*.svg'] } },
+        { dryRun: true },
+      );
+      expect(results).toHaveLength(3);
+      expect(results.some((r) => r.assetType === 'svg')).toBe(false);
+    });
+
+    it('config.input.include keeps only matching sources', async () => {
+      const results = await runPipeline(
+        tmpInput,
+        { input: { include: ['**/*.css'] } },
+        { dryRun: true },
+      );
+      expect(results.map((r) => r.assetType)).toEqual(['css']);
+    });
+
+    it('changing input.exclude does not invalidate the cache', async () => {
+      const dir = await mkdtemp(path.join(tmpdir(), 'assetopt-glob-cache-'));
+      await writeFile(path.join(dir, 'style.css'), '.k { color: green; }');
+      await writeFile(path.join(dir, 'app.js'), 'const k = 1;');
+      const out = await mkdtemp(path.join(tmpdir(), 'assetopt-glob-cache-out-'));
+
+      await runPipeline(dir, { output: { dir: out } });
+      // input selects files, it does not change their optimized bytes: the
+      // remaining file must still hit the cache.
+      const second = await runPipeline(dir, {
+        input: { exclude: ['**/*.js'] },
+        output: { dir: out },
+      });
+      expect(second).toHaveLength(1);
+      expect(second[0].cached).toBe(true);
+
+      await rm(dir, { recursive: true, force: true });
+      await rm(out, { recursive: true, force: true });
+    });
+  });
+
+  describe('parallel execution', () => {
+    it('returns results in the same order as a serial run', async () => {
+      const serial = await runPipeline(tmpInput, {}, { dryRun: true, concurrency: 1 });
+      const parallel = await runPipeline(tmpInput, {}, { dryRun: true, concurrency: 4 });
+      expect(parallel.map((r) => r.inputPath)).toEqual(serial.map((r) => r.inputPath));
+    });
+
+    it('reports progress with a monotonic counter and a stable total', async () => {
+      const calls: Array<[number, number]> = [];
+      const results = await runPipeline(
+        tmpInput,
+        {},
+        {
+          dryRun: true,
+          onProgress: (current, total) => calls.push([current, total]),
+        },
+      );
+      expect(calls.map(([current]) => current)).toEqual(results.map((_, i) => i + 1));
+      expect(calls.every(([, total]) => total === results.length)).toBe(true);
+    });
+
+    it('writes the same outputs as a serial run', async () => {
+      const outSerial = await mkdtemp(path.join(tmpdir(), 'assetopt-par-s-'));
+      const outParallel = await mkdtemp(path.join(tmpdir(), 'assetopt-par-p-'));
+      const serial = await runPipeline(
+        tmpInput,
+        { output: { dir: outSerial } },
+        { useCache: false, concurrency: 1 },
+      );
+      const parallel = await runPipeline(
+        tmpInput,
+        { output: { dir: outParallel } },
+        { useCache: false, concurrency: 4 },
+      );
+
+      expect(parallel.map((r) => path.basename(r.outputPath))).toEqual(
+        serial.map((r) => path.basename(r.outputPath)),
+      );
+      for (const result of parallel) {
+        expect(existsSync(result.outputPath)).toBe(true);
+      }
+      await rm(outSerial, { recursive: true, force: true });
+      await rm(outParallel, { recursive: true, force: true });
+    });
+
+    it('still reports exactly one collision error under concurrency', async () => {
+      // Same-basename sources racing to the same output path: whichever task
+      // claims first wins, but exactly one of the two must error either way.
+      const collInput = await mkdtemp(path.join(tmpdir(), 'assetopt-par-coll-'));
+      const jpegBuffer = await sharp({
+        create: { width: 40, height: 40, channels: 3, background: { r: 10, g: 20, b: 30 } },
+      })
+        .jpeg()
+        .toBuffer();
+      const pngBuffer = await sharp({
+        create: {
+          width: 40,
+          height: 40,
+          channels: 4,
+          background: { r: 10, g: 20, b: 30, alpha: 1 },
+        },
+      })
+        .png()
+        .toBuffer();
+      await writeFile(path.join(collInput, 'photo.jpg'), jpegBuffer);
+      await writeFile(path.join(collInput, 'photo.png'), pngBuffer);
+      const out = await mkdtemp(path.join(tmpdir(), 'assetopt-par-coll-out-'));
+
+      const results = await runPipeline(
+        collInput,
+        { images: { outputFormat: 'webp' }, output: { dir: out } },
+        { concurrency: 4 },
+      );
+      expect(results.filter((r) => r.error !== undefined)).toHaveLength(1);
+      expect(results.filter((r) => r.error === undefined)).toHaveLength(1);
+
+      await rm(collInput, { recursive: true, force: true });
+      await rm(out, { recursive: true, force: true });
+    });
+  });
 });
