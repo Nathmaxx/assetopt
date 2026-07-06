@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.1.0] — 2026-07-06
+
 ### Added
 
 - `input.include` / `input.exclude` config fields: glob patterns (picomatch syntax, matched relative to the scanned directory) to target or skip source files; `scanDirectory` gains the matching `include`/`exclude` options in `ScanOptions` (`@assetopt/core`).
