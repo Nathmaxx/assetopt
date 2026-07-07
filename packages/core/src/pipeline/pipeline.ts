@@ -121,6 +121,7 @@ export async function runPipeline(
   const { dryRun = false, useCache = true, onProgress } = options;
   const concurrency = resolveConcurrency(options.concurrency);
   const outputDir = config.output?.dir ?? './optimized';
+  const forceReencode = config.output?.forceReencode ?? false;
   const skip = new Set(config.images?.skip ?? []);
   const manifestPath = path.resolve(outputDir, CACHE_FILE);
   const hashableConfig = configForHash(config);
@@ -184,30 +185,43 @@ export async function runPipeline(
       const newExt =
         dispatched.assetType === 'image' ? FORMAT_TO_EXT[dispatched.format] : undefined;
 
+      // "Larger output" guard (ROADMAP P1.3): unless forceReencode is set, when
+      // the optimized bytes are not smaller AND we are not converting format,
+      // keep the source bytes verbatim (0 % savings) rather than writing a
+      // bigger file. A format conversion that grows the file is intentional
+      // (a bigger .webp than the .jpg source can still be the goal) and is
+      // always kept — hence the `!formatChanged` condition.
+      const formatChanged =
+        dispatched.assetType === 'image' && dispatched.format !== getImageSourceFormat(filePath);
+      const keepSource =
+        !forceReencode && !formatChanged && dispatched.outputSize >= dispatched.originalSize;
+      const outputBuffer = keepSource ? buffer : dispatched.buffer;
+      const outputSize = keepSource ? dispatched.originalSize : dispatched.outputSize;
+
       const outputPath = resolveOutputPath(filePath, inputDir, outputDir, newExt);
       claimOutputPath(claimedOutputs, outputPath, filePath);
 
       if (!dryRun) {
-        await writeBuffer(outputPath, dispatched.buffer);
+        await writeBuffer(outputPath, outputBuffer);
       }
 
       if (cacheKey !== null && !dryRun) {
         manifest[cacheKey] = {
           inputSize: dispatched.originalSize,
-          outputSize: dispatched.outputSize,
+          outputSize,
           outputPath: toPosixPath(path.relative(outputDir, outputPath)),
           outputFormat: dispatched.assetType === 'image' ? dispatched.format : undefined,
           timestamp: Date.now(),
         };
       }
 
-      const savedBytes = dispatched.originalSize - dispatched.outputSize;
+      const savedBytes = dispatched.originalSize - outputSize;
 
       return {
         inputPath: filePath,
         outputPath,
         inputSize: dispatched.originalSize,
-        outputSize: dispatched.outputSize,
+        outputSize,
         savedBytes,
         savedPercent: computeSavedPercent(savedBytes, dispatched.originalSize),
         assetType: dispatched.assetType,

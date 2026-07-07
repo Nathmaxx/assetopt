@@ -12,6 +12,7 @@ interface AnalyzeCommandOptions {
   cache?: boolean;
   output?: string;
   exclude: string[];
+  forceReencode?: boolean;
 }
 
 export function registerAnalyze(program: Command): void {
@@ -30,6 +31,10 @@ export function registerAnalyze(program: Command): void {
     )
     .option('--json', 'output report as JSON instead of terminal format')
     .option('--min-savings <percent>', 'fail (exit 1) if total savings are below this percent')
+    .option(
+      '--force-reencode',
+      'report savings for the re-encoded output even when it is larger than the source (disables the larger-output guard)',
+    )
     .option('--no-cache', 'bypass the incremental cache (re-analyze every asset from scratch)')
     .action(async (dir: string = '.', options: AnalyzeCommandOptions) => {
       const cwd = resolve(process.cwd(), dir);

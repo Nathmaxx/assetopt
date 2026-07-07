@@ -61,6 +61,7 @@ export const configSchema = z.object({
   output: z
     .object({
       dir: z.string().optional(),
+      forceReencode: z.boolean().optional(),
     })
     .optional(),
 });

@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- `output.forceReencode` config field (`@assetopt/core`) and `--force-reencode` flag on `optimize`/`analyze` to opt out of the new larger-output guard and always write the re-encoded bytes.
+
+### Changed
+
+- Optimization no longer writes a file **larger** than its source: when re-encoding would grow an asset and no format conversion is involved, the source bytes are kept verbatim (0 % savings) instead. A format conversion that grows the file (e.g. a `.webp` larger than the `.jpg` source) is still kept, since the conversion is the intended result. Set `output.forceReencode` / `--force-reencode` for the previous always-re-encode behavior.
+
 ## [1.1.0] — 2026-07-06
 
 ### Added

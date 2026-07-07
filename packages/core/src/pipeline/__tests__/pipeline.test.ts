@@ -569,4 +569,73 @@ describe('runPipeline', () => {
       await rm(out, { recursive: true, force: true });
     });
   });
+
+  describe('larger-output guard (P1.3)', () => {
+    // esbuild appends a trailing newline, so this 17-byte source re-encodes to
+    // 18 bytes — a deterministic "re-encoding grows the file" case, same format.
+    const GROWING_JS = 'export const a=1;';
+
+    it('keeps the source verbatim when re-encoding would grow the file (no conversion)', async () => {
+      const input = await mkdtemp(path.join(tmpdir(), 'assetopt-guard-'));
+      const out = await mkdtemp(path.join(tmpdir(), 'assetopt-guard-out-'));
+      await writeFile(path.join(input, 'm.js'), GROWING_JS);
+
+      const [res] = await runPipeline(input, { output: { dir: out } }, { useCache: false });
+
+      expect(res.outputSize).toBe(res.inputSize);
+      expect(res.savedBytes).toBe(0);
+      expect(res.savedPercent).toBe(0);
+      const written = await readFile(path.join(out, 'm.js'), 'utf-8');
+      expect(written).toBe(GROWING_JS);
+
+      await rm(input, { recursive: true, force: true });
+      await rm(out, { recursive: true, force: true });
+    });
+
+    it('writes the larger re-encoded output when forceReencode is set', async () => {
+      const input = await mkdtemp(path.join(tmpdir(), 'assetopt-force-'));
+      const out = await mkdtemp(path.join(tmpdir(), 'assetopt-force-out-'));
+      await writeFile(path.join(input, 'm.js'), GROWING_JS);
+
+      const [res] = await runPipeline(
+        input,
+        { output: { dir: out, forceReencode: true } },
+        { useCache: false },
+      );
+
+      expect(res.outputSize).toBeGreaterThan(res.inputSize);
+      expect(res.savedBytes).toBeLessThan(0);
+      const written = await readFile(path.join(out, 'm.js'), 'utf-8');
+      expect(written).not.toBe(GROWING_JS);
+
+      await rm(input, { recursive: true, force: true });
+      await rm(out, { recursive: true, force: true });
+    });
+
+    it('keeps a format-converted output even when it is larger than the source', async () => {
+      // A tiny solid JPEG grows when converted to AVIF (container overhead),
+      // but a bigger .avif than the .jpg source is the intended result.
+      const input = await mkdtemp(path.join(tmpdir(), 'assetopt-conv-'));
+      const out = await mkdtemp(path.join(tmpdir(), 'assetopt-conv-out-'));
+      const jpeg = await sharp({
+        create: { width: 8, height: 8, channels: 3, background: { r: 10, g: 20, b: 30 } },
+      })
+        .jpeg({ quality: 90 })
+        .toBuffer();
+      await writeFile(path.join(input, 'p.jpg'), jpeg);
+
+      const [res] = await runPipeline(
+        input,
+        { images: { outputFormat: 'avif' }, output: { dir: out } },
+        { useCache: false },
+      );
+
+      expect(path.basename(res.outputPath)).toBe('p.avif');
+      expect(res.outputSize).toBeGreaterThan(res.inputSize);
+      expect(existsSync(path.join(out, 'p.avif'))).toBe(true);
+
+      await rm(input, { recursive: true, force: true });
+      await rm(out, { recursive: true, force: true });
+    });
+  });
 });

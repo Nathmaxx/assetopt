@@ -9,18 +9,25 @@ export function collect(value: string, previous: string[]): string[] {
 /**
  * Apply CLI flag overrides on top of the loaded config:
  * - `-o/--output` replaces `output.dir` (resolved from the current cwd);
+ * - `--force-reencode` sets `output.forceReencode` (writes larger outputs);
  * - `--exclude` globs are appended to `input.exclude`, so the config's own
  *   excludes keep applying.
  */
 export function applyCliOverrides(
   config: AssetoptConfig,
-  flags: { output?: string; exclude?: string[] },
+  flags: { output?: string; exclude?: string[]; forceReencode?: boolean },
 ): AssetoptConfig {
   let effective = config;
   if (flags.output !== undefined) {
     effective = {
       ...effective,
       output: { ...effective.output, dir: resolve(process.cwd(), flags.output) },
+    };
+  }
+  if (flags.forceReencode === true) {
+    effective = {
+      ...effective,
+      output: { ...effective.output, forceReencode: true },
     };
   }
   if (flags.exclude !== undefined && flags.exclude.length > 0) {

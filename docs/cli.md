@@ -79,7 +79,7 @@ Analyze assets and report potential savings without modifying any files (dry-run
 ### Signature
 
 ```
-assetopt analyze [dir] [-o, --output <dir>] [--exclude <glob>]... [--json] [--min-savings <percent>] [--no-cache]
+assetopt analyze [dir] [-o, --output <dir>] [--exclude <glob>]... [--json] [--min-savings <percent>] [--force-reencode] [--no-cache]
 ```
 
 ### Arguments
@@ -90,13 +90,14 @@ assetopt analyze [dir] [-o, --output <dir>] [--exclude <glob>]... [--json] [--mi
 
 ### Options
 
-| Option                    | Default                     | Effect                                                                                                                        |
-| ------------------------- | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `-o, --output <dir>`      | from config (`./optimized`) | Override `output.dir` from config — used here for cache lookup                                                                |
-| `--exclude <glob>`        | _none_                      | Skip files matching this glob (repeatable). Appended to `input.exclude` from config — see [config → input](./config.md#input) |
-| `--json`                  | _off_                       | Output the report as JSON on stdout. Suppresses the colored summary, the progress bar, and the config-source banner           |
-| `--min-savings <percent>` | _off_                       | Fail with exit code 1 if total savings are below this percent. Value must be a finite number between 0 and 100                |
-| `--no-cache`              | _off_                       | Bypass the incremental cache (read every asset from scratch)                                                                  |
+| Option                    | Default                     | Effect                                                                                                                                                                    |
+| ------------------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `-o, --output <dir>`      | from config (`./optimized`) | Override `output.dir` from config — used here for cache lookup                                                                                                            |
+| `--exclude <glob>`        | _none_                      | Skip files matching this glob (repeatable). Appended to `input.exclude` from config — see [config → input](./config.md#input)                                             |
+| `--json`                  | _off_                       | Output the report as JSON on stdout. Suppresses the colored summary, the progress bar, and the config-source banner                                                       |
+| `--min-savings <percent>` | _off_                       | Fail with exit code 1 if total savings are below this percent. Value must be a finite number between 0 and 100                                                            |
+| `--force-reencode`        | _off_                       | Report the re-encoded output even when it is larger than the source, disabling the [larger-output guard](./features.md#larger-output-guard) (sets `output.forceReencode`) |
+| `--no-cache`              | _off_                       | Bypass the incremental cache (read every asset from scratch)                                                                                                              |
 
 ### Exit codes
 
@@ -144,7 +145,7 @@ Optimize assets and write the results to the output directory.
 ### Signature
 
 ```
-assetopt optimize [dir] [-o, --output <dir>] [--exclude <glob>]... [--json] [--min-savings <percent>] [--no-cache]
+assetopt optimize [dir] [-o, --output <dir>] [--exclude <glob>]... [--json] [--min-savings <percent>] [--force-reencode] [--no-cache]
 ```
 
 ### Arguments
@@ -155,13 +156,14 @@ assetopt optimize [dir] [-o, --output <dir>] [--exclude <glob>]... [--json] [--m
 
 ### Options
 
-| Option                    | Default                     | Effect                                                                                                                        |
-| ------------------------- | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `-o, --output <dir>`      | from config (`./optimized`) | Override `output.dir` from config for this run                                                                                |
-| `--exclude <glob>`        | _none_                      | Skip files matching this glob (repeatable). Appended to `input.exclude` from config — see [config → input](./config.md#input) |
-| `--json`                  | _off_                       | Output the report as JSON on stdout. Suppresses the colored summary, the progress bar, and the config-source banner           |
-| `--min-savings <percent>` | _off_                       | Fail with exit code 1 if total savings are below this percent. Value must be a finite number between 0 and 100                |
-| `--no-cache`              | _off_                       | Bypass the incremental cache (force re-processing of every asset, do not write the manifest)                                  |
+| Option                    | Default                     | Effect                                                                                                                                                                   |
+| ------------------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `-o, --output <dir>`      | from config (`./optimized`) | Override `output.dir` from config for this run                                                                                                                           |
+| `--exclude <glob>`        | _none_                      | Skip files matching this glob (repeatable). Appended to `input.exclude` from config — see [config → input](./config.md#input)                                            |
+| `--json`                  | _off_                       | Output the report as JSON on stdout. Suppresses the colored summary, the progress bar, and the config-source banner                                                      |
+| `--min-savings <percent>` | _off_                       | Fail with exit code 1 if total savings are below this percent. Value must be a finite number between 0 and 100                                                           |
+| `--force-reencode`        | _off_                       | Write the re-encoded output even when it is larger than the source, disabling the [larger-output guard](./features.md#larger-output-guard) (sets `output.forceReencode`) |
+| `--no-cache`              | _off_                       | Bypass the incremental cache (force re-processing of every asset, do not write the manifest)                                                                             |
 
 ### Exit codes
 
@@ -193,10 +195,14 @@ assetopt optimize dist --no-cache
 
 # Skip drafts and already-minified bundles
 assetopt optimize ./public --exclude "drafts/**" --exclude "**/*.min.js"
+
+# Always write the re-encoded output, even when it ends up larger than the source
+assetopt optimize ./public --force-reencode
 ```
 
 ### Notes
 
+- By default, when re-encoding an asset would produce a file **larger than the source** and no format conversion is happening, the source is copied verbatim (0 % savings). Pass `--force-reencode` to write the larger output instead. See [features → Larger-output guard](./features.md#larger-output-guard).
 - The cache manifest lives at `<output.dir>/.assetopt-cache.json`. `--no-cache` neither reads nor writes it.
 - With `--json`, only valid JSON is written to stdout — safe for piping. The config-source banner and progress are normally on stderr-equivalent paths… in practice they're suppressed entirely when `--json` is set.
 - The report's `outputPath` reflects any extension change from format conversion (e.g. `photo.jpg` → `photo.webp` when `web-perf` is active). The `inputPath` always shows the original.

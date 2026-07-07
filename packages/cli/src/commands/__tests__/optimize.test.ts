@@ -158,4 +158,18 @@ describe('optimize command', () => {
     const config = runPipelineMock.mock.calls[0][1];
     expect(config.input).toBeUndefined();
   });
+
+  it('sets output.forceReencode with --force-reencode', async () => {
+    await runOptimize(['--force-reencode']);
+
+    const config = runPipelineMock.mock.calls[0][1];
+    expect(config.output.forceReencode).toBe(true);
+  });
+
+  it('leaves forceReencode unset by default', async () => {
+    await runOptimize([]);
+
+    const config = runPipelineMock.mock.calls[0][1];
+    expect(config.output.forceReencode).toBeUndefined();
+  });
 });

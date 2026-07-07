@@ -130,5 +130,15 @@ export interface AssetoptConfig {
   svg?: SvgOptimizeOptions;
   output?: {
     dir?: string;
+    /**
+     * Re-encoding can produce a file *larger* than the source (an already
+     * optimized PNG, a high `quality` preset…). By default, when the optimized
+     * bytes are not smaller **and no format conversion happened**, the source
+     * is copied verbatim (0 % savings) instead of writing a bigger file. A
+     * format conversion that grows the file is always kept — a `.webp` larger
+     * than its `.jpg` source can still be the goal. Set `forceReencode: true`
+     * to always write the re-encoded output, even when it is larger.
+     */
+    forceReencode?: boolean;
   };
 }

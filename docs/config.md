@@ -268,6 +268,23 @@ The cache manifest is always written at `<output.dir>/.assetopt-cache.json`.
 
 **Override per run**: pass `-o, --output <dir>` to `optimize` or `analyze` to override this for a single invocation, without touching `.assetoptrc`. See [CLI reference → optimize](./cli.md#assetopt-optimize-dir).
 
+### `output.forceReencode`
+
+|             |           |
+| ----------- | --------- |
+| **Type**    | `boolean` |
+| **Default** | `false`   |
+
+Re-encoding can produce a file **larger** than the source — an already-optimized PNG, a high `quality` preset, an incompressible asset. By default, when the optimized bytes are not smaller **and no format conversion happened**, assetopt copies the source verbatim (0 % savings) instead of writing a bigger file. Set `forceReencode: true` to always write the re-encoded output, even when it is larger.
+
+A format conversion that grows the file (a `.webp` larger than its `.jpg` source) is **always kept** — the conversion is what you asked for — regardless of this option.
+
+```json
+{ "output": { "forceReencode": true } }
+```
+
+**Override per run**: pass `--force-reencode` to `optimize` or `analyze`. See [features → Larger-output guard](./features.md#larger-output-guard).
+
 ---
 
 ## Resolution order

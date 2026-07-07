@@ -168,6 +168,23 @@ await optimizeImage(buf, {
 
 ---
 
+## Larger-output guard
+
+**What you get**: optimization never makes a file bigger. Re-encoding can genuinely grow an asset — an already-optimized PNG, a JS file that's already minified, a high-`quality` preset on incompressible bytes. When that happens and **no format conversion is involved**, assetopt keeps the source bytes verbatim and reports `0 %` savings instead of writing a larger file. Nothing to enable.
+
+```bash
+assetopt optimize ./public                  # bigger re-encodes are skipped, source kept
+assetopt optimize ./public --force-reencode # opt out: always write the re-encoded output
+```
+
+**The format-conversion exception**: a conversion that grows the file is **kept**. If you ask for `.jpg` → `.webp` and the WebP comes out larger, that's still the result you wanted (a modern format with broader tooling support), so it is written as-is. The guard only fires when the output format equals the source format.
+
+**Opting out**: set [`output.forceReencode: true`](./config.md#outputforcereencode) (or pass `--force-reencode`) to always write the re-encoded bytes, even when larger — useful if you strip metadata for consistency and don't mind a marginally bigger file.
+
+**With `analyze`**: the guard applies to the dry-run too, so reported savings never go negative unless `--force-reencode` is set — an accurate picture of what `optimize` would actually write.
+
+---
+
 ## Incremental cache
 
 **What you get**: re-run `assetopt optimize` as often as you want — only new or modified files are reprocessed. First run is slow, every run after is near-instant. No config to enable.
