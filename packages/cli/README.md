@@ -2,6 +2,16 @@
 
 Command-line tool to optimize images, CSS, JS and SVG assets — open source, MIT.
 
+<p align="center">
+  <a href="https://www.npmjs.com/package/@assetopt/cli"><img src="https://img.shields.io/npm/v/@assetopt/cli?color=6366f1&label=npm" alt="npm version"></a>
+  <a href="https://www.npmjs.com/package/@assetopt/cli"><img src="https://img.shields.io/npm/dm/@assetopt/cli?color=6366f1" alt="npm downloads"></a>
+  <a href="https://github.com/Nathmaxx/assetopt/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/@assetopt/cli?color=6366f1" alt="MIT license"></a>
+</p>
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Nathmaxx/assetopt/main/assets/assetopt-demo.gif" alt="assetopt optimizing images, CSS, JS and SVG in one command — 65% smaller, locally, no upload" width="820">
+</p>
+
 🌐 **[Landing page & live demo →](https://assetopt.tech)** — overview, before/after gallery, and a downloadable demo pack to try assetopt yourself.
 
 ## Install

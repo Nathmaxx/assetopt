@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.2.0] — 2026-07-11
+
 ### Added
 
 - `output.forceReencode` config field (`@assetopt/core`) and `--force-reencode` flag on `optimize`/`analyze` to opt out of the new larger-output guard and always write the re-encoded bytes.
@@ -14,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Changed
 
 - Optimization no longer writes a file **larger** than its source: when re-encoding would grow an asset and no format conversion is involved, the source bytes are kept verbatim (0 % savings) instead. A format conversion that grows the file (e.g. a `.webp` larger than the `.jpg` source) is still kept, since the conversion is the intended result. Set `output.forceReencode` / `--force-reencode` for the previous always-re-encode behavior.
+- `README.md` and `packages/cli/README.md` — add npm badges (version, downloads, license) and a demo GIF showing a full `optimize` run.
 
 ## [1.1.0] — 2026-07-06
 
@@ -88,5 +91,9 @@ Initial public release of `@assetopt/cli` and `@assetopt/core`.
 - Zero-friction config — `.assetoptrc` walk-up from `process.cwd()`, validated with zod.
 - Colored terminal report with per-file breakdown, progress bar, and config-source banner.
 
+[1.2.0]: https://github.com/Nathmaxx/assetopt/releases/tag/v1.2.0
+[1.1.0]: https://github.com/Nathmaxx/assetopt/releases/tag/v1.1.0
+[1.0.3]: https://github.com/Nathmaxx/assetopt/releases/tag/v1.0.3
+[1.0.2]: https://github.com/Nathmaxx/assetopt/releases/tag/v1.0.2
 [1.0.1]: https://github.com/Nathmaxx/assetopt/releases/tag/v1.0.1
 [1.0.0]: https://github.com/Nathmaxx/assetopt/releases/tag/v1.0.0

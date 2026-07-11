@@ -1,6 +1,6 @@
 {
   "name": "@assetopt/cli",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Command-line tool to optimize images, CSS, JS and SVG assets — open source, MIT.",
   "license": "MIT",
   "author": "Nath",
