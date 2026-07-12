@@ -6,6 +6,7 @@ A Node.js CLI for optimizing static assets — images, CSS, JS, and SVG. Open so
   <a href="https://www.npmjs.com/package/@assetopt/cli"><img src="https://img.shields.io/npm/v/@assetopt/cli?color=6366f1&label=npm" alt="npm version"></a>
   <a href="https://www.npmjs.com/package/@assetopt/cli"><img src="https://img.shields.io/npm/dm/@assetopt/cli?color=6366f1" alt="npm downloads"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/npm/l/@assetopt/cli?color=6366f1" alt="MIT license"></a>
+  <a href="https://github.com/Nathmaxx/assetopt/actions/workflows/install-smoke.yml"><img src="https://github.com/Nathmaxx/assetopt/actions/workflows/install-smoke.yml/badge.svg" alt="Install smoke test — macOS, Windows, Linux × Node 20, 22, 24"></a>
 </p>
 
 <p align="center">

@@ -50,6 +50,13 @@ echo "→ assetopt optimize ./assets --no-cache"
 assetopt optimize ./assets -o ./optimized --json --no-cache > report-nocache.json
 node assert.mjs report-nocache.json nocache
 
+# Globs are posix patterns matched against paths handed over by the host
+# filesystem — the one place a Windows runner can still diverge from a Linux one.
+# The fixtures are nested (vector/diagram.svg), so `**/` has a separator to cross.
+echo "→ assetopt optimize ./assets --exclude '**/*.svg' (glob matching)"
+assetopt optimize ./assets -o ./optimized --json --no-cache --exclude '**/*.svg' > report-exclude.json
+node assert.mjs report-exclude.json exclude
+
 echo "→ assetopt audit ./assets"
 assetopt audit ./assets > /dev/null
 echo "  ok   audit exited 0"
