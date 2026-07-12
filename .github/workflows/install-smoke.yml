@@ -1,0 +1,67 @@
+name: Install smoke test
+
+# Installs the PUBLISHED package from npm and runs it on every OS we claim to
+# support. Distinct from CI on purpose: CI builds and tests the source tree at
+# HEAD, and stays green even when the published tarball is broken — a file left
+# out of `files`, or a native dep (sharp / esbuild / lightningcss) with no
+# prebuilt binary for a platform. Only this workflow can catch that.
+#
+# It deliberately does NOT run on pull requests: it tests what is on the
+# registry, not the branch, so a PR run would report on a version the diff has
+# nothing to do with.
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Published version to test (npm dist-tag or exact version)'
+        required: false
+        default: 'latest'
+  workflow_run:
+    workflows: ['Release']
+    types: [completed]
+  schedule:
+    # Weekly: the package can break without us touching it — a transitive native
+    # dep publishing a bad platform build is enough.
+    - cron: '0 6 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    # On the workflow_run trigger, only proceed if the release actually published.
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+
+    strategy:
+      fail-fast: false # one broken platform must not hide the state of the others
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node: ['20', '22', '24'] # 20 is the floor declared in engines
+
+    runs-on: ${{ matrix.os }}
+    name: ${{ matrix.os }} · node ${{ matrix.node }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      # Same layout the Dockerfile builds, so smoke.sh runs identically here and
+      # locally: fixtures land in ./assets, next to the scenario.
+      - name: Stage the scenario
+        shell: bash
+        run: |
+          mkdir -p "${RUNNER_TEMP}/smoke"
+          cp -r scripts/smoke/fixtures "${RUNNER_TEMP}/smoke/assets"
+          cp scripts/smoke/smoke.sh scripts/smoke/assert.mjs "${RUNNER_TEMP}/smoke/"
+
+      # bash on all three runners — Windows gets it via Git Bash, which is what
+      # makes a single POSIX scenario possible instead of a PowerShell fork.
+      - name: Install from npm and run the scenario
+        shell: bash
+        working-directory: ${{ runner.temp }}/smoke
+        env:
+          ASSETOPT_VERSION: ${{ inputs.version || 'latest' }}
+        run: sh ./smoke.sh

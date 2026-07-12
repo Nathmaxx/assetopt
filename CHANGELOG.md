@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- Install smoke test (`scripts/smoke/`) — installs the **published** package from npm in a clean environment and runs the full `init` → `analyze` → `optimize` → cache → `audit` → `clean` path against real fixtures. Locally via Docker (Node 20/22/24, glibc and musl); on macOS and Windows via the `Install smoke test` GitHub Actions matrix, which runs after each release, weekly, and on demand. Covers what the vitest suite structurally cannot: a broken published tarball, or a native dependency (`sharp`, `esbuild`, `lightningcss`) with no prebuilt binary for a given platform.
+
 ## [1.2.0] — 2026-07-11
 
 ### Added

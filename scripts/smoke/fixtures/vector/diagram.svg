@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Sample SVG for the assetopt demo pack. Hand-authored, public domain. -->
+<!-- Intentionally unoptimized: redundant precision, metadata, and whitespace
+     so `assetopt optimize` (svgo multipass) has something real to remove. -->
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  xmlns:xlink="http://www.w3.org/1999/xlink"
+  width="640.000000"
+  height="400.000000"
+  viewBox="0.0000000 0.0000000 640.0000000 400.0000000"
+  version="1.1"
+>
+  <metadata id="metadata-block">
+    Created with a text editor. Sample asset for assetopt. License: public domain (CC0).
+  </metadata>
+  <defs>
+    <linearGradient id="grad-a" x1="0.00000" y1="0.00000" x2="1.00000" y2="1.00000">
+      <stop offset="0.0000000" stop-color="#6366f1" stop-opacity="1.0000000" />
+      <stop offset="1.0000000" stop-color="#4338ca" stop-opacity="1.0000000" />
+    </linearGradient>
+    <linearGradient id="grad-b" x1="0.00000" y1="0.00000" x2="0.00000" y2="1.00000">
+      <stop offset="0.0000000" stop-color="#34d399" stop-opacity="1.0000000" />
+      <stop offset="1.0000000" stop-color="#059669" stop-opacity="1.0000000" />
+    </linearGradient>
+  </defs>
+
+  <rect x="0.0000000" y="0.0000000" width="640.0000000" height="400.0000000" fill="#0b1220" />
+
+  <g id="bars" transform="translate(80.0000000, 60.0000000)">
+    <rect x="0.0000000"   y="40.0000000"  width="80.0000000" height="240.0000000" rx="8.0000000" fill="url(#grad-a)" />
+    <rect x="120.0000000" y="120.0000000" width="80.0000000" height="160.0000000" rx="8.0000000" fill="url(#grad-a)" />
+    <rect x="240.0000000" y="180.0000000" width="80.0000000" height="100.0000000" rx="8.0000000" fill="url(#grad-b)" />
+    <rect x="360.0000000" y="220.0000000" width="80.0000000" height="60.0000000"  rx="8.0000000" fill="url(#grad-b)" />
+  </g>
+
+  <g id="labels" font-family="sans-serif" font-size="14.0000000" fill="#94a3b8">
+    <text x="80.0000000"  y="370.0000000">original</text>
+    <text x="200.0000000" y="370.0000000">webp</text>
+    <text x="320.0000000" y="370.0000000">avif</text>
+    <text x="440.0000000" y="370.0000000">svg</text>
+  </g>
+
+  <circle cx="540.0000000" cy="80.0000000" r="36.0000000" fill="none" stroke="#6366f1" stroke-width="6.0000000" />
+  <path
+    d="M 524.0000000 80.0000000 L 536.0000000 92.0000000 L 558.0000000 66.0000000"
+    fill="none"
+    stroke="#34d399"
+    stroke-width="6.0000000"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</svg>

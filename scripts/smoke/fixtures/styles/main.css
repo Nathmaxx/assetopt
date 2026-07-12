@@ -1,0 +1,95 @@
+/*
+ * main.css — sample stylesheet for the assetopt demo pack.
+ * Hand-authored, public domain (CC0).
+ * Deliberately unminified (comments, whitespace, longhand) so that
+ * `assetopt optimize` has real bytes to remove via CSS minification.
+ */
+
+:root {
+    --color-background: #0b1220;
+    --color-surface: #111a2e;
+    --color-border: #1e293b;
+    --color-text: #e2e8f0;
+    --color-muted: #94a3b8;
+    --color-accent: #6366f1;
+    --color-accent-strong: #4338ca;
+    --color-success: #34d399;
+    --radius-small: 8px;
+    --radius-medium: 12px;
+    --spacing-unit: 8px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: "Inter", system-ui, -apple-system, sans-serif;
+    background-color: var(--color-background);
+    color: var(--color-text);
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1024px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: calc(var(--spacing-unit) * 3);
+    padding-right: calc(var(--spacing-unit) * 3);
+}
+
+.card {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-medium);
+    padding: calc(var(--spacing-unit) * 3);
+    transition: border-color 200ms ease, transform 200ms ease;
+}
+
+.card:hover {
+    border-color: var(--color-accent);
+    transform: translateY(-2px);
+}
+
+.button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: calc(var(--spacing-unit) * 1);
+    padding: calc(var(--spacing-unit) * 1.5) calc(var(--spacing-unit) * 3);
+    border: none;
+    border-radius: var(--radius-small);
+    background-image: linear-gradient(
+        to right,
+        var(--color-accent),
+        var(--color-accent-strong)
+    );
+    color: #ffffff;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.button:hover {
+    opacity: 0.92;
+}
+
+.metric {
+    font-variant-numeric: tabular-nums;
+    color: var(--color-success);
+    font-size: 2rem;
+    font-weight: 800;
+}
+
+@media (max-width: 640px) {
+    .container {
+        padding-left: calc(var(--spacing-unit) * 2);
+        padding-right: calc(var(--spacing-unit) * 2);
+    }
+
+    .metric {
+        font-size: 1.5rem;
+    }
+}

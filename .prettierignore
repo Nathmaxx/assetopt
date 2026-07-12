@@ -1,2 +1,6 @@
 dist/
 node_modules/
+
+# Smoke-test inputs: kept unformatted on purpose — they are what the optimizers
+# are given to chew on, not source we maintain.
+scripts/smoke/fixtures/
